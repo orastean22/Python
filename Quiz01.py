@@ -1,6 +1,6 @@
 value = 10
 def func():
         value = 20
-        print(value)
+        print(value , end= " ")
 func
-print(value)
+#print(value)
