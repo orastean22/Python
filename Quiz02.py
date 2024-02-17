@@ -1,7 +1,8 @@
+# Geometric Progression in Python
 # 1.Take input of a, r and n
 a = int(input("Enter the value of a: "))
-r = int(input("Enter the value of a: "))
-n = int(input("Enter the value of a: "))
+r = int(input("Enter the value of r: "))
+n = int(input("Enter the value of n: "))
 
 # 2.Loop for n terms
 for i in range(1, n+1):
