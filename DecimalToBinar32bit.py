@@ -16,7 +16,14 @@ def decimal_to_binary_32(decimal):
     return binary_string
 
 # Test the function
-decimal_number = 123
+#decimal_number = 123
+
+# Read a number from the keyboard
+number  = input("Enter a number: ")
+
+# Convert the input string to an integer
+decimal_number = int(number)
+
 binary_representation = decimal_to_binary_32(decimal_number)
 print("Binary representation of", decimal_number, "is:", binary_representation)
 
