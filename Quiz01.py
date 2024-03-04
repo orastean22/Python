@@ -2,6 +2,7 @@ value = 10
 def func():
         value = 20
         print(value , end= " ")
-func
+func()
 print(value)
-#display 10
+#display 20 10
+#firs value is different variable then value from function func
