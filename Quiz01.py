@@ -5,4 +5,6 @@ def func():
 func()
 print(value)
 #display 20 10
+
+#first will be executed func + display and the printf
 #firs value is different variable then value from function func

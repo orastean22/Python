@@ -9,3 +9,7 @@ else:
 
 #display
 # 1 2 3 4
+
+
+#display only 1;2;3;4 because we have condition if i==5; go out with brake and print(i) not be executed
+
