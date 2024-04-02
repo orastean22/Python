@@ -1,0 +1,53 @@
+import pytesseract
+from PIL import Image
+from docx import Document
+
+def image_to_text(image):
+    """
+    Convert image to text using OCR (Optical Character Recognition).
+    """
+    try:
+        # Open the image
+        image = Image.open(image_path)
+
+        # Perform OCR
+        text = pytesseract.image_to_string(image)
+
+        return text
+    except Exception as e:
+        print("An error occurred during OCR:", e)
+        return None
+
+def create_word_document(A, output_path):
+    """
+    Create a Word document (.docx) and write text to it.
+    """
+    try:
+        # Create a new Document
+        doc = Document()
+
+        # Add the text to the document
+        doc.add_paragraph(text)
+
+        # Save the document
+        doc.save(output_path)
+
+        print("Word document created successfully at:", "/Users/adrianorastean/Downloads/")
+    except Exception as e:
+        print("An error occurred while creating the Word document:", e)
+
+# Path to the image file
+image_path = "/Users/adrianorastean/Downloads/SPI1.JPEG"
+
+# Path for the output Word document
+output_path = "SPI.docx"
+
+# Convert image to text
+text = image_to_text(image_path)
+
+# Create a Word document and write the text to it
+if text:
+    create_word_document(text, output_path)
+else:
+    print("Failed to convert image to text.")
+
