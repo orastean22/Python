@@ -1,4 +1,5 @@
 #imports the pywin32 library for scope connection
+import pywin32
 import win32com.client
 
 #imports the tkinter library for Window managementfrom tkinter import *
