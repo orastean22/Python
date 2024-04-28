@@ -1,7 +1,7 @@
 #imports the pywin32 library for scope connection
 import win32com.client
 
-#imports the tkinter library for Window management from tkinter import *
+#imports the tkinter library for Window managementfrom tkinter import *
 import string
 
 #creates instance of the ActiveDSO control
@@ -10,7 +10,7 @@ Scope=win32com.client.Dispatch("LeCroy.ActiveDSOCtrl.1")
 #Connects to the oscilloscope. Substitute your IP address
 Scope.MakeConnection("IP:127.0.0.1")
 
-#definition of variables 
+#definition of variables
 TableValue          =["","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""]
 StrVariable         =""
 SymbolTable         =["","","","","","","",""]
@@ -28,14 +28,14 @@ Saisie              = 1
 Scope.WriteString("vbs? 'Return = app.SerialDecode.Decode1.Out.Result.Rows'", True)
 StrVariable = Scope.ReadString(10)
 NumberOfRow = int(StrVariable)
-    
+   
 Scope.WriteString("vbs? 'Return = app.SerialDecode.Decode1.Out.Result.Columns'", True)
 StrVariable = Scope.ReadString(10)
 NumberOfColumns = int(StrVariable)
 
-#----------------- 
-#Window management 
-#----------------- 
+#-----------------
+#Window management
+#-----------------
 
 MyWindow = Tk()     #instance de la classe Tk, création de la fenêtre MyWindow
 MyWindow.title("Data Decoding") #Titre de la fenêtre MyWindow
@@ -53,9 +53,9 @@ Label3 = Label(MyWindow, width=35, text="Data", font = ("Courrier New",10), fg='
 Label3.grid(column=4, row=0)
 Label4 = Label(MyWindow, width=10, text="1", font = ("Courrier New",10), fg='black', bg='white')
 Label4.grid(column=0, row=1)
-Label4 = Label(MyWindow, width=10, text="10", font = ("Courrier New",10), 
-fg='black', bg='white')
+Label4 = Label(MyWindow, width=10, text="10", font = ("Courrier New",10), fg='black', bg='white')
 Label4.grid(column=2, row=1)
+
 Button = Button(MyWindow, text="    Exit    ", command=MyWindow.destroy)
 Button.grid(column=1, row=2)
 
@@ -76,9 +76,9 @@ while True:
         TableValue[j] = StrVariable      
         j=j+1    
 
-#-------------     
-#data decoding     
-#-------------     
+#-------------    
+#data decoding    
+#-------------    
 
 for i in range(8):        
     StrVariable = TableValue[i*5] + TableValue[(i*5)+1] + TableValue[(i*5)+2] + TableValue[(i*5)+3] + TableValue[(i*5)+4]        
