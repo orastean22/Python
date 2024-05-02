@@ -45,8 +45,7 @@ while value != "1":
 print ("scope armed to use OPC, trigger 20 times")
 scope.WriteString("CLSW",1)
 #time.sleep(0.2)
-# F is the vector containing in first column the frequency, then gain and in 3rd 
-column phase difference
+# F is the vector containing in first column the frequency, then gain and in 3rd column phase difference
 # scope must be set up manually or via setup recall to meet expected results
 # phase differences is supposed to be in P5
 F = numpy.zeros(shape=(23,3))
