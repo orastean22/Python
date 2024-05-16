@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------
-# -- Python Script File
+# -- Python Script File V0.01
 # -- Created on 04/21/2024 10:30:56
 # -- Author: AdrianO
 # -- Comment: Calculate Pulse Width for signal A and signal B
