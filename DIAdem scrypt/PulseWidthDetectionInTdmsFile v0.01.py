@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------
-# -- Python Script File V0.01
+# -- Python Script File
 # -- Created on 04/21/2024 10:30:56
 # -- Author: AdrianO
 # -- Comment: Calculate Pulse Width for signal A and signal B
@@ -8,7 +8,8 @@
 """ declare the encoding of the file. It indicates that the file is encoded using UTF-8"""
 # -*- coding: utf-8 -*-
 from nptdms import TdmsFile
-
+from matplotlib import pyplot as plt
+from collections import Counter
 
 # --------------------------------------------------------------------
 """ 
@@ -35,7 +36,6 @@ def calculate_pulse_times(signal_data, threshold):
 
     return pulse_times
 
-
 """ 
  Calculates the width of each pulse based on its start and end times.
     Args:
@@ -46,6 +46,15 @@ def calculate_pulse_widths(pulse_times):
     pulse_widths = [end - start + 1 for start, end in pulse_times]
     return pulse_widths
 
+
+# --------------------------------------------------------------------
+""" this function takes a list of pulse widths as input, calculates the average width 
+of the pulses, and returns this average width as the output of the function"""
+
+def calculate_average_pulse_width(pulse_widths):
+    average_width = sum(pulse_widths) / len(pulse_widths)
+    return average_width
+""" returns the calculated average width as the output of the function"""
 
 # --------------------------------------------------------------------
 """ Reads a TDMS file and extracts pulse information from the specified channels.
@@ -79,7 +88,7 @@ def read_tdms_file(file_path, group_name, channel_names, threshold):
     return pulse_times_dict, pulse_widths_dict
 
 # Example usage
-file_path = "C:/Users/aorastean/Desktop/TDMS/Glitch2.tdms"
+file_path = "C:/Users/aorastean/Desktop/TDMS/Glitch4.tdms"
 group_name = "DUT Data"
 channel_names = ["DUT1_Gate_A_Signal", "DUT1_Gate_B_Signal"]
 threshold = 5
@@ -94,8 +103,8 @@ for channel_name in channel_names:
         fall_time = end
         print("Pulse", i+1, "- Rise time:", rise_time, "- Fall time:", fall_time, "- Width:", width)
 
-    print("\nGlitches detected (width < 5) for", channel_name + ":")
-    glitches_detected = [i+1 for i, width in enumerate(pulse_widths[channel_name]) if width < 5]
+    print("\nGlitches detected (width < average width) for", channel_name + ":")
+    glitches_detected = [i+1 for i, width in enumerate(pulse_widths[channel_name]) if width < 4]
     if glitches_detected:
         print("Pulses with width less than 5:", glitches_detected)
     else:
