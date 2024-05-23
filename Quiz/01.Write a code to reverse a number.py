@@ -1,31 +1,19 @@
-#Write a code to reverse a number
+# 01.Write a code to reverse a number
 
-# Taking input from the user
-num = int(input("Enter the Number:"))
+num = int(input("Enter the Number:"))     # Taking input from the user
+temp = num                                # Storing the original number for display later
+reverse = 0                               # Initializing a variable to store the reversed number
 
-# Storing the original number for display later
-temp = num
-
-# Initializing a variable to store the reversed number
-reverse = 0
-
-# Reversing the number
-while num > 0:
-    # Extracting the last digit
-    remainder = num % 10
-    # Appending the digit to the reversed number
-    reverse = (reverse * 10) + remainder
-    # Removing the last digit from the number
-    num = num // 10
+while num > 0:                            # Reversing the number
+    remainder = num % 10                  # Extracting the last digit
+    reverse = (reverse * 10) + remainder  # Appending the digit to the reversed number
+    num = num // 10                       # Removing the last digit from the number
 
 # Displaying the original and reversed numbers
 print("The Given number is {} and Reverse is {}".format(temp, reverse))
 
 #Display: 102 -> become 201
 # 1234 -> 4321
-
-
-
 
 """ Initialization:
 num = 123: This is the number entered by the user.
