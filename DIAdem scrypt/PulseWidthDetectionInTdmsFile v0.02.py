@@ -88,9 +88,12 @@ def read_tdms_file(file_path, group_name, channel_names, threshold):
     return pulse_times_dict, pulse_widths_dict
 
 # Example usage
-file_path = "C:/Users/aorastean/Desktop/TDMS/Glitch3.tdms"
+file_path = "C:/Users/aorastean/Desktop/TDMS/glitch/Glitch1.tdms"
+
+#file_path = r"\\pictshare01\04_Ops\05_Engineering\05_TestEngineering\02_BoardTest\01_TSLH\01_Framework\TestStrategys\2SP0215F2Q\BurnIN\Documentation\DIAdem files glitch detection criteria\TDMS\Glitch3.tdms"
+
 group_name = "DUT Data"
-channel_names = ["DUT1_Gate_A_Signal", "DUT1_Gate_B_Signal"]
+channel_names = ["DUT2_Gate_A_Signal", "DUT2_Gate_B_Signal"]
 threshold = 5
 
 pulse_times, pulse_widths = read_tdms_file(file_path, group_name, channel_names, threshold)

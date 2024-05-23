@@ -8,9 +8,8 @@
 """ declare the encoding of the file. It indicates that the file is encoded using UTF-8"""
 # -*- coding: utf-8 -*-
 from nptdms import TdmsFile
-from collections import Counter
 from matplotlib import pyplot as plt
-
+from collections import Counter
 
 # --------------------------------------------------------------------
 """ 
@@ -34,10 +33,10 @@ def calculate_pulse_times(signal_data, threshold):
             pulse_end = i - 1
             pulse_times.append((pulse_start, pulse_end))
             pulse_start = None
-            
+
     return pulse_times
 
-# ----------------------------------------------------------------------------------------------------------------------
+
 """ 
  Calculates the width of each pulse based on its start and end times.
     Args:
@@ -49,13 +48,16 @@ def calculate_pulse_widths(pulse_times):
     return pulse_widths
 
 
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
+""" this function takes a list of pulse widths as input, calculates the average width 
+of the pulses, and returns this average width as the output of the function"""
+
 def calculate_average_pulse_width(pulse_widths):
     average_width = sum(pulse_widths) / len(pulse_widths)
     return average_width
+""" returns the calculated average width as the output of the function"""
 
-
-# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------
 """ Reads a TDMS file and extracts pulse information from the specified channels.
     Args:
         file_path (str): Path to the TDMS file.
@@ -63,7 +65,7 @@ def calculate_average_pulse_width(pulse_widths):
         channel_names (list of str): Names of the channels in the TDMS file.
         threshold (float): The threshold value to detect pulses.
     Returns: tuple: A tuple containing pulse times and pulse widths for each channel.
- """
+    """
 def read_tdms_file(file_path, group_name, channel_names, threshold):
     # Load TDMS file using file_path
     tdms_file = TdmsFile.read(file_path)
@@ -86,54 +88,19 @@ def read_tdms_file(file_path, group_name, channel_names, threshold):
 
     return pulse_times_dict, pulse_widths_dict
 
-# ----------------------------------------------------------------------------------------------------------------------
-
-# ----------------------------------------------------------------------------------------------------------------------
-def get_plotGlitch(signal_data,upperLimit,lowerLimit,start,end,step):
-
-    # Create the plot
-    fig, ax = plt.subplots()  # Create figure and axes objects
-    ax.plot(signal_data[start-step:end+step])
-    ax.plot(upperLimit[start-step:end+step])
-    ax.plot(lowerLimit[start-step:end+step])
-
-      # Customize the plot (optional)
-      # You can add labels, title, etc. using ax methods like ax.set_xlabel(), ax.set_title()
-
-    return fig  # Return the figure object
-
-# ----------------------------------------------------------------------------------------------------------------------
 # Example usage
+file_path = "C:/Users/aorastean/Desktop/TDMS/glitch/Glitch1.tdms"
 
-file_path = r"\\pictshare01\04_Ops\05_Engineering\05_TestEngineering\02_BoardTest\01_TSLH\01_Framework\TestStrategys\2SP0215F2Q\BurnIN\Documentation\DIAdem files glitch detection criteria\TDMS\glitch\Glitch1.tdms"
-#file_path = "C:/Users/aorastean/Desktop/TDMS/Glitch4.tdms"
-
+#file_path = r"\\pictshare01\04_Ops\05_Engineering\05_TestEngineering\02_BoardTest\01_TSLH\01_Framework\TestStrategys\2SP0215F2Q\BurnIN\Documentation\DIAdem files glitch detection criteria\TDMS\Glitch3.tdms"
 group_name = "DUT Data"
-channel_names = ["DUT1_Gate_B_Signal"]
-threshold = 5
+channel_names = ["DUT2_Gate_A_Signal", "DUT2_Gate_B_Signal"]
+threshold = 5  # 5V threshold detection because pulse signal is (-2V -> 15V)
 
-"""
-# Get the specified group and channel data
-tdms_file = TdmsFile.read(file_path)
-group = tdms_file[group_name]
-signal_data = group[channel_name][:]
-
-upperLimit_data = group['DUT1_Gate_A_Lim_up'][:]
-lowerLimit_data = group[ 'DUT1_Gate_A_Lim_low'][:] 
-
-# Example usage
-data = pulse_widths['DUT1_Gate_A_Signal']
-Percent_thereshold = 70  # Adjust this value to define the minimum contribution
-
-# Get high contribution numbers
-high_contribution_numbers = get_high_contribution_numbers(data, Percent_thereshold) """
 pulse_times, pulse_widths = read_tdms_file(file_path, group_name, channel_names, threshold)
 
-# Calculate the average pulse width once
+# Calculate the average pulse width once and Print
 average_width = calculate_average_pulse_width(pulse_widths[channel_names[0]])
-
-# Print the average pulse width
-print("Average pulse width for", channel_names[0] + ":", average_width)
+print("Average pulse width for", channel_names[0] + ":", average_width,"\n")
 
 for channel_name in channel_names:
     print("All pulses for", channel_name + ":")
@@ -141,12 +108,7 @@ for channel_name in channel_names:
         width = pulse_widths[channel_name][i]
         rise_time = start
         fall_time = end
- 
         print("Pulse", i+1, "- Rise time:", rise_time, "- Fall time:", fall_time, "- Width:", width)
-
-        #display average of pulse_widths
-        #average_width = calculate_average_pulse_width(pulse_widths[channel_name])
-        #print("\nAverage pulse width for", channel_name + ":", average_width)
 
     print("\nGlitches detected (width < average width) for", channel_name + ":")
     glitches_detected = [i+1 for i, width in enumerate(pulse_widths[channel_name]) if width < average_width]
@@ -154,4 +116,4 @@ for channel_name in channel_names:
         print("Pulses with width less than 5:", glitches_detected)
     else:
         print("No glitches detected.")
-        print("\n")
+    print("\n")
