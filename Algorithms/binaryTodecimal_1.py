@@ -1,3 +1,4 @@
+
 def binary_to_decimal(binary_num):
     decimal_num = 0
     power = len(binary_num) - 1
@@ -8,7 +9,6 @@ def binary_to_decimal(binary_num):
     
     return decimal_num
 
-# Example usage:
 # n = int(input("Enter the value of n in binar : "))
 binary_num = "1101"
 decimal_num = binary_to_decimal(binary_num)

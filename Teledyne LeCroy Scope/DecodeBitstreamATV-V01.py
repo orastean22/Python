@@ -17,24 +17,29 @@ def extract_and_convert(binary_num, start, end):
     # The second argument (2) tells Python that the input string is in base 2 (binary).
     return int(extracted_bits, 2)    # The function returns the decimal value of the extracted bits.
 
-#normal bits
+"""
+    The invert_binary function takes a binary string as input and returns its inverted version.
+"""
+def invert_binary(binary_num):
+    # Invert the binary string
+    inverted_binary = ''.join('1' if bit == '0' else '0' for bit in binary_num)
+    return inverted_binary
+
+#binary_num = "1111 1001 0010 0010 0001 1111 1110"
+#binary_num = "1111111111111111111111111111"
 #binary_num = "1111100100100010000111111110"
-binary_num = "1111111111110000000111111110"
-#binary_num = "1111100100100010000111111110"
+#binary_num = "1111111111110000000001111111"     127 & 0 - OK
+binary_num = "1111100100010010000111111110"
 
+# Invert the binary number before extracting and converting
+binary_num = invert_binary(binary_num)
+#print("Inverted binary number is:", binary_num)
 
-#inverted bits
-#binary_num = "0000011011011101111000000001"
-#binary_num = "0000000000001111111000000001"
-#binary_num = "0000011011011101111000000001"
-
-
-
-#first bit 0;
+# First bit 0;
 # Extract bits from 14 to 20 and convert to decimal
-decimal_14_20 = extract_and_convert(binary_num, 13, 19)
+decimal_14_20 = extract_and_convert(binary_num, 14, 20)
 print("Decimal representation of bits 14 to 20 is:", decimal_14_20)
 
 # Extract bits from 22 to 28 and convert to decimal
-decimal_22_28 = extract_and_convert(binary_num, 21, 27)
+decimal_22_28 = extract_and_convert(binary_num, 22, 28)
 print("Decimal representation of bits 22 to 28 is:", decimal_22_28)
