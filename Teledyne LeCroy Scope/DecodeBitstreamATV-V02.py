@@ -1,3 +1,4 @@
+
 def decode_bitstream(bitstream):
     # Convert the entire bitstream to decimal before inversion
     decimal_before_inversion = int(bitstream, 2)
@@ -20,7 +21,6 @@ def decode_bitstream(bitstream):
 
     return decimal_before_inversion, decimal_after_inversion, decimal_14_to_20, decimal_22_to_28
 
-
 # Example bitstream
 bitstream = "1111100100100010000111111110"
 
@@ -31,4 +31,3 @@ print(f"Decimal value of the entire bitstream before inversion: {decimal_before_
 print(f"Decimal value of the entire bitstream after inversion: {decimal_after_inversion}")
 print(f"Binary value of bits 14 to 20: {bitstream[::-1][13:20]}, Decimal value: {decoded_14_to_20}")
 print(f"Binary value of bits 22 to 28: {bitstream[::-1][21:28]}, Decimal value: {decoded_22_to_28}")
-
