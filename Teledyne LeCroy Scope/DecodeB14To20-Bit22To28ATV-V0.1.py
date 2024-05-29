@@ -27,7 +27,7 @@ def binary_to_decimal(binary_num, start_bit, end_bit):
 
 
 # The binary number should have 28 bits
-binary_num = "1110101010101010111111111111"
+binary_num = "1111100100100010000111111110"
 
 #Calls the binary_to_decimal function twice to decode the segments
 #from bits 14 to 20 and from bits 22 to 28.
