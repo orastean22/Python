@@ -28,8 +28,8 @@ def invert_binary(binary_num):
 #binary_num = "1111 1001 0010 0010 0001 1111 1110"
 #binary_num = "1111111111111111111111111111"
 #binary_num = "1111100100100010000111111110"
-binary_num = "1111111111110000000001111111"      # 127 & 0 - OK
-#binary_num = "1111100100100010000111111110"
+#binary_num = "1111111111110000000001111111"     127 & 0 - OK
+binary_num = "1111100100010010000111111110"
 
 # Invert the binary number before extracting and converting
 binary_num = invert_binary(binary_num)
