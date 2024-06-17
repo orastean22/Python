@@ -1,7 +1,10 @@
-#download youtube video using python scrypt on Highest resolutio
+#download youtube video using python scrypt on Highest resolution
 """  first install this library:  pip install pytube"""
+""" also pip install yt-dlp """
+
 
 import yt_dlp
+
 
 def download_video(url, output_path):
     try:
