@@ -18,10 +18,13 @@ def extract_and_convert(binary_num, start, end):
 def invert_binary(binary_num):
     # Invert the binary string
     inverted_binary = ''.join('1' if bit == '0' else '0' for bit in binary_num)
+    #inverted_binary = binary_num
     return inverted_binary
 
-# Bitstream
-binary_num = "1111111111110000000001111111"      # 127 & 0 - OK
+
+#binary_num = "1111111111110000000001111111"      # 127 & 0 - OK
+binary_num = "1111 1111 1111 0000 0001 1111 1110"
+
 
 # Convert the entire bitstream to decimal before inversion
 decimal_before_inversion = int(binary_num, 2)
@@ -39,9 +42,9 @@ print("Decimal value after inversion of  (Binary: " ,binary_num_inverted , ") is
 # Function "extract_and_convert" It returns two values: the decimal representation of the extracted bits
 # and the binary representation of the extracted bits.
 # These two values are assigned to the variables decimal_14_20 and binary_14_20, respectively, using tuple unpacking.
-decimal_14_20, binary_14_20 = extract_and_convert(binary_num_inverted, 14, 20)
+decimal_14_20, binary_14_20 = extract_and_convert(binary_num_inverted, 13, 19)
 print("Decimal representation of bits 14 to 20 for (Binary: ", binary_14_20, ") is ", decimal_14_20 )
 
 # Extract bits from 22 to 28 and convert to decimal
-decimal_22_28, binary_22_28 = extract_and_convert(binary_num_inverted, 22, 28)
+decimal_22_28, binary_22_28 = extract_and_convert(binary_num_inverted, 21, 27)
 print("Decimal representation of bits 22 to 28 for (Binary:", binary_22_28 , ") is ",  decimal_22_28)
