@@ -24,12 +24,10 @@ def extract_and_convert(binary_num, start, end):
 
 #normal 28 bits
 #binary_num = "1111111111110000000111111110"
+#binary_num =  "1111110010110000000111111110"
+#binary_num =  "0000001101001111111000000000"
+binary_num =  "0000000000001111111000000111"
 
-#inverted 28 bits
-#binary_num = "11111111111100000001111111101111"
-binary_num = "1111111111110000000111111110"
-
-#first bit is 0;
 # Extract bits from 14(or 13) to 20(or 19) and convert to decimal
 decimal_14_20 = extract_and_convert(binary_num, 13, 19)
 print("Decimal representation of bits 14 to 20 is:", decimal_14_20)
