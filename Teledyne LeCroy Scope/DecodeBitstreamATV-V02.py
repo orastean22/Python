@@ -1,3 +1,9 @@
+# --------------------------------------------------------------------
+# -- Python Script File
+# -- Created on 04/22/2024 10:35:56
+# -- Author: AdrianO
+# -- Comment: Decode BitStream B_OUT[14..20] and B_OUT[22..28] add inverted fct
+# --------------------------------------------------------------------
 """
     The extract_and_convert function takes three arguments: binary_num (the binary string),
     start (the starting bit position), and end (the ending bit position).
@@ -23,7 +29,7 @@ def invert_binary(binary_num):
 
 
 #binary_num = "1111111111110000000001111111"      # 127 & 0 - OK
-binary_num = "1111 1111 1111 0000 0001 1111 1110"
+binary_num = "1111111111110000000111111110"
 
 
 # Convert the entire bitstream to decimal before inversion
