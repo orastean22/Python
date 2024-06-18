@@ -29,7 +29,7 @@ def invert_binary(binary_num):
 
 
 #binary_num = "1111111111110000000001111111"      # 127 & 0 - OK
-binary_num = "1111111111110000000111111110"
+binary_num = "0000000000001111111000000001"
 
 
 # Convert the entire bitstream to decimal before inversion

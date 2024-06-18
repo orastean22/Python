@@ -29,7 +29,7 @@ def invert_binary(binary_num):
 #binary_num = "1111111111111111111111111111"
 #binary_num = "1111100100100010000111111110"
 #binary_num = "1111111111110000000001111111"     127 & 0 - OK
-binary_num = "1111100100010010000111111110"
+binary_num = "0000000000001111111000000001"
 
 # Invert the binary number before extracting and converting
 binary_num = invert_binary(binary_num)
@@ -37,9 +37,9 @@ binary_num = invert_binary(binary_num)
 
 # First bit 0;
 # Extract bits from 14 to 20 and convert to decimal
-decimal_14_20 = extract_and_convert(binary_num, 14, 20)
+decimal_14_20 = extract_and_convert(binary_num, 13, 19)
 print("Decimal representation of bits 14 to 20 is:", decimal_14_20)
 
 # Extract bits from 22 to 28 and convert to decimal
-decimal_22_28 = extract_and_convert(binary_num, 22, 28)
+decimal_22_28 = extract_and_convert(binary_num, 21, 27)
 print("Decimal representation of bits 22 to 28 is:", decimal_22_28)
