@@ -5,6 +5,7 @@
 # Start       1 bit        '0' = 75% Dutycycle
 # Payload    27 bits       '1' = 50% Dutycycle
 # Stop        1 bit        DataRate 450Kbps
+# this version communicate via TCPI with LXI - VISA
 #
 # ------------------------------------------------
 import scope
