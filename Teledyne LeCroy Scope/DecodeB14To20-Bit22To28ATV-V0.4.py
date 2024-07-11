@@ -39,7 +39,7 @@ def decode_entire_bitstream(binary_num):
     return decimal_value
 
 # 27-bit bitstream from scope
-binary_num_27 = "001111110000000111111111111"
+binary_num_27 = "111111111111000111111000000"
 
 # Counting the bits in bitstream
 total_bits = len(binary_num_27)
