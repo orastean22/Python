@@ -1,0 +1,5 @@
+	1. Python script: ScanBurnIn-generateLOG-V02.py
+	2. Install in terminal this:   pip install pyinstaller
+	3. Go in terminal where you have the pythin script: PS C:\Python\python\projects\ScanBurnIn-generateLOG> 
+	Run the command:   pyinstaller --onefile your_script_name.py
+	4. Run this command in termainal where you have the pu script: pyinstaller --onefile ScanBurnIn-generateLOG-V02.py 
