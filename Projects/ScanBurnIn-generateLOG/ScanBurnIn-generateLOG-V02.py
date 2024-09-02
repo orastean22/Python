@@ -38,9 +38,9 @@ def generate_batch_file():
             save_path = filedialog.askdirectory(title="Select Directory to Save the Batch File")
             if not save_path:
                 return  # If the user cancels, exit the function
-            batch_file_name = os.path.join(save_path, f"Batch_{current_date}.txt")
+            batch_file_name = os.path.join(save_path, f"Batch {current_date}.txt")
         else:
-            batch_file_name = os.path.join(desktop_path, f"Batch_{current_date}.txt")
+            batch_file_name = os.path.join(desktop_path, f"Batch {current_date}.txt")
 
         # Open the file for writing
         with open(batch_file_name, 'w') as file:
