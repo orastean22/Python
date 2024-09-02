@@ -1,0 +1,48 @@
+[
+  {
+    "ErrTimeTick": "2024-08-31 10:46:44.009",
+    "ErrorLines": [
+      {
+        "TimeChange": "10:46:34.007",
+        "TimeSpan to Error": "-00:00:10.0010447",
+        "Count": 16992,
+        "SicData[hex]": "4003F804",
+        "Temperature": "°C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "10:46:44.009",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 0,
+        "SicData[hex]": "40001404",
+        "Temperature": "°C",
+        "Comment": "CRC_b21",
+        "SO": "Error"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2024-08-31 10:46:44.088",
+    "ErrorLines": [
+      {
+        "TimeChange": "10:46:34.088",
+        "TimeSpan to Error": "-00:00:09.9992738",
+        "Count": 16855,
+        "SicData[hex]": "4003F804",
+        "Temperature": "°C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "10:46:44.009",
+        "TimeSpan to Error": "-00:00:00.0792114",
+        "Count": 0,
+        "SicData[hex]": "40001404",
+        "Temperature": "°C",
+        "Comment": "CRC_b21",
+        "SO": "Error"
+      }
+    ]
+  }
+]
