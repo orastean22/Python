@@ -2,7 +2,7 @@
 #-- Python Script File
 #-- Created on 04/Sept/2024
 #-- Author: AdrianO
-#-- Version 0.1
+#-- Version 1
 #-- Comment: Compare Test Strategy file Vs DLG file and display the test that are not perform in DLG but mandatory
 # in Test Strategy.
 # -- pip install pandas
