@@ -3,6 +3,7 @@
 #-- Created on 04/Sept/2024
 #-- Author: AdrianO
 #-- Comment: Draw temperature graphic based on all errors from JSON file correlated with the time of BI events.
+#-- pip install pandas
 #----------------------------------------------------------------------------------------------------------------------
 
 import pandas as pd
@@ -10,7 +11,8 @@ import matplotlib.pyplot as plt
 import os
 
 # File path with double backslashes
-file_path = 'C:/Python/Python/Projects/TemperatureInBIBasedOnJsonError/DATA/2024-09-03 09_34_50_000 SN  DUT 1.csv'
+#file_path = 'C:/Python/Python/Projects/TemperatureInBIBasedOnJsonError/DATA/2024-09-03 09_34_50_000 SN  DUT 1.csv'
+file_path = 'C:/Python/Python/Projects/TemperatureInBIBasedOnJsonError/DATA/2024-08-30 11_43_56_000 SN  DUT 2.csv'
 
 # Check if the file exists
 if not os.path.exists(file_path):
