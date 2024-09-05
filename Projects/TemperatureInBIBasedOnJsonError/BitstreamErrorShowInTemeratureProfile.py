@@ -33,7 +33,7 @@ else:
         # Create the plot
         plt.figure(figsize=(10, 6))
         plt.plot(time, temperature, marker='o', linestyle='-', color='blue')
-        
+
 
         # Add title and labels
         plt.title('Temperature Profile Over Time')
