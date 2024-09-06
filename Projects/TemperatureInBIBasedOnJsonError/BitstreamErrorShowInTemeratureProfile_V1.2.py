@@ -2,7 +2,7 @@
 # -- Python Script File
 # -- Created on 05/Sept/2024
 # -- Author: AdrianO
-# -- Version 1.2
+# -- Version 1.21
 # -- Script Task: Draw temperature graphic based on all errors from JSON file correlated with the time of BI events.
 # -- Comment Vers 1.2: integrate all errors from Json bitstream only in plot
 # -- pip install pandas
@@ -10,6 +10,7 @@
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates  # <--- Add this line
 import os
 import tkinter as tk
 from tkinter import filedialog, messagebox
@@ -17,7 +18,11 @@ import json
 import re  # for regular expression matching
 from collections import defaultdict
 from datetime import datetime
+import textwrap  # For wrapping long legend labels
 
+
+
+# Modify the plotting part where we add the legend labels for errors
 # Function to open the file dialog and get the file path
 def browse_file(file_type, file_extension):
     root = tk.Tk()
@@ -196,8 +201,8 @@ try:
     time = df['Time']
     temperature = df['Temperature']
 
-    # Create the plot
-    plt.figure(figsize=(10, 6))
+    # Modify the plotting part of the code
+    plt.figure(figsize=(15, 8), dpi=100)  # Increase figure size and resolution
     plt.plot(time, temperature, marker='o', linestyle='-', color='blue', label='Temperature Profile')
 
     # Create the main part of the title with red serial number
@@ -208,11 +213,16 @@ try:
         plt.suptitle(f'Temperature Profile Over Time - {dut_type} Serial No: Not Found', fontsize=12)
 
     # Add labels for the plot
-    plt.xlabel('Time (HH:MM:SS)')
+    plt.xlabel('Time')
     plt.ylabel('Temperature (°C)')
 
     # Rotate the time labels for better readability
     plt.xticks(rotation=45)
+
+    # Set date format for x-axis
+    ax = plt.gca()  # Get the current axis
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())  # Automatically set date ticks
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d %H:%M:%S'))  # Date format for better readability
 
     # Add grid
     plt.grid(True)
@@ -221,19 +231,22 @@ try:
     all_errors = defaultdict(list, {**errors_json1, **errors_json2})
 
     # Highlight errors with red dots and add legend labels for errors
+    max_label_width = 50  # Maximum character width before wrapping
     for error, times in all_errors.items():
+        # Wrap the error message into multiple lines
+        wrapped_error = "\n".join(textwrap.wrap(f"{repr(error)} occurred {len(times)} time(s)", max_label_width))
         for i, error_time in enumerate(times):
             # Convert the full datetime string to a datetime object for matching with the plot
             error_time_obj = pd.to_datetime(error_time)
             closest_index = (time - error_time_obj).abs().idxmin()  # Get the index of the closest match
             # Plot the red dot for the error and include a label only for the first occurrence
             if i == 0:  # Only label the first dot to avoid clutter in the legend
-                plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12, label=f"{repr(error)} occurred {len(times)} time(s)")
+                plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12,label=wrapped_error)
             else:
                 plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12)  # Red dot without label for subsequent occurrences
 
-    # Show legend
-    plt.legend()
+    # Modify the part of your code where the legend is shown
+    plt.legend(loc='upper left')  # This will place the legend in the top-left corner of the plot
 
     # Show the plot
     plt.tight_layout()  # Adjust layout to prevent clipping of labels
