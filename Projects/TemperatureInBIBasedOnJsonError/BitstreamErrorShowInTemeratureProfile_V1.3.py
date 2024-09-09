@@ -2,7 +2,7 @@
 # -- Python Script File
 # -- Created on 05/Sept/2024
 # -- Author: AdrianO
-# -- Version 1.3
+# -- Version 1.3  (09.09.2024)
 # -- Script Task: Draw temperature graphic based on all errors from JSON file correlated with the time of BI events.
 # -- Comment Vers 1.2: integrate all errors from Json bitstream only in plot
 # -- Comment Vers 1.3: add also SO read out from all Json files and display on temperature graphic + add channels
