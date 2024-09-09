@@ -5,6 +5,7 @@
 # -- Version 1.3
 # -- Script Task: Draw temperature graphic based on all errors from JSON file correlated with the time of BI events.
 # -- Comment Vers 1.2: integrate all errors from Json bitstream only in plot
+# -- Comment Vers 1.3: add also SO read out from all Json files and display on temperature graphic + add channels
 # -- pip install pandas
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -19,7 +20,6 @@ import re  # for regular expression matching
 from collections import defaultdict
 from datetime import datetime
 import textwrap  # For wrapping long legend labels
-
 
 
 # Modify the plotting part where we add the legend labels for errors
@@ -82,7 +82,7 @@ def extract_date_from_err_time_tick(err_time_tick):
         # If there's an error in extracting the date, return the original string
         return err_time_tick
 
-# Function to load and display JSON errors
+# Function to load and display JSON errors, including SO errors
 def process_json_data(file_name):
     print(f"\n\033[1;34mProcessing JSON file: {file_name}\033[0m\n")
 
@@ -91,8 +91,9 @@ def process_json_data(file_name):
 
     # Dictionary to store the errors and corresponding times for the current JSON file
     current_file_errors = defaultdict(list)
+    so_errors = []  # To store SO errors
 
-    # Iterate through the JSON data and extract "ErrTimeTick", "Comment", and "TimeChange" values
+    # Iterate through the JSON data and extract "ErrTimeTick", "Comment", "SO", and "TimeChange" values
     for error in data:
         err_time_tick = error.get("ErrTimeTick", "")  # Extract the ErrTimeTick field (date and time)
         date_only = extract_date_from_err_time_tick(err_time_tick)  # Extract only the date part (YYYY-MM-DD)
@@ -100,28 +101,53 @@ def process_json_data(file_name):
         for line in error.get("ErrorLines", []):
             comment = line.get("Comment", "")
             time_change = line.get("TimeChange", "")  # Extract the TimeChange field (time)
+            so_error = line.get("SO", "")  # Check for "SO" error inside the ErrorLines
 
+            # If SO error is detected, store it with the corresponding timestamp
+            if so_error =="Error":
+                full_datetime = format_full_time(date_only, time_change)
+                so_errors.append(full_datetime) # Store SO errors based on timestamp
+
+            # Store the general errors
             if comment and comment != "CRC_b21":  # Exclude CRC_b21
                 # Combine the extracted date (YYYY-MM-DD) with the time from TimeChange
                 full_datetime = format_full_time(date_only, time_change)
                 current_file_errors[comment].append(full_datetime)
-
     # Check if there are no errors and print "NO error" if that's the case
-    if not current_file_errors:
-        print(f"\n\033[1;32mNO error\033[0m\n")  # Green bold text for NO error
+    if not current_file_errors and not so_errors:
+       print(f"\n\033[1;32mNO error\033[0m\n")  # Green bold text for NO error
 
     else:
-        # Print out the errors and corresponding full timestamps for the current JSON file
+        # Print out the general errors and corresponding full timestamps for the current JSON file
         for comment, times in current_file_errors.items():
-            count = len(times)
-            if count == 1:
-                print(f"Error: {repr(comment)} occurred at {times[0]}")
-            else:
-                print(f"Error: {repr(comment)} occurred {count} time(s) at the following times:")
-                for time in times:
-                    print(f" - {time}")
+             count = len(times)
+             if count == 1:
+                 print(f"Error: {repr(comment)} occurred at {times[0]}")
+             else:
+                 print(f"Error: {repr(comment)} occurred {count} time(s) at the following times:")
+                 for time in times:
+                     print(f" - {time}")
 
-    return current_file_errors  # Return the errors and their timestamps
+    # Print out the SO errors for debugging
+    if so_errors:
+        print("\n\033[1;31mSO Errors Detected:\033[0m")  # Red text for SO errors
+        so_count = len(so_errors)
+        print(f"SO Error occurred {so_count} time(s) at the following times:")
+        for so_error_time in so_errors:
+            print(f" - {so_error_time}")
+
+    return current_file_errors, so_errors  # Return both general errors and SO errors
+
+# Function to determine if errors are in the Top Ch, Bottom Ch, or both
+# Function to determine if errors are in the Top Ch, Bottom Ch, or both
+def determine_channel(errors_json1, errors_json2, so_errors1, so_errors2):
+    if (errors_json1 or so_errors1) and (errors_json2 or so_errors2):
+        return "Top Ch and Bottom Ch"
+    elif errors_json1 or so_errors1:
+        return "Bottom Ch"
+    elif errors_json2 or so_errors2:
+        return "Top Ch"
+    return None
 
 # Function to load and validate the two JSON files
 def load_json_files(dut_number):
@@ -145,13 +171,13 @@ def load_json_files(dut_number):
             raise ValueError(f"Error: The second JSON file does not match the expected Dev file. Expected '{expected_dev2}', but got '{selected_dev2}'.")
     except ValueError as e:
         show_error_popup(str(e))  # Show error in a popup
-        return None, None  # Return None if error occurred
+        return None, None, None, None  # Return None if error occurred
 
     # Process and display the errors in both JSON files
-    errors1 = process_json_data(json_file_path1)
-    errors2 = process_json_data(json_file_path2)
+    errors1, so_errors1 = process_json_data(json_file_path1)
+    errors2, so_errors2 = process_json_data(json_file_path2)
 
-    return errors1, errors2
+    return errors1, errors2, so_errors1, so_errors2
 
 # Load the CSV and TXT files using a file browser
 csv_file_path = browse_file("CSV", "*.csv")
@@ -168,11 +194,14 @@ if not dut_type:
 dut_number = int(dut_type.replace("DUT", ""))  # Convert DUT number to integer
 
 # Load the JSON files for the given DUT number
-errors_json1, errors_json2 = load_json_files(dut_number)
+errors_json1, errors_json2, so_errors1, so_errors2  = load_json_files(dut_number)
 
 # If JSON loading was unsuccessful, exit
 if errors_json1 is None or errors_json2 is None:
     exit()
+
+# Determine if errors are on Top Ch, Bottom Ch, or both
+channel_label = determine_channel(errors_json1, errors_json2, so_errors1, so_errors2)
 
 # Continue with processing the files...
 try:
@@ -205,12 +234,15 @@ try:
     plt.figure(figsize=(15, 8), dpi=100)  # Increase figure size and resolution
     plt.plot(time, temperature, marker='o', linestyle='-', color='blue', label='Temperature Profile')
 
-    # Create the main part of the title with red serial number
-    if serial_number:
-        plt.suptitle(f'Temperature Profile Over Time - {dut_type} Serial No: ', fontsize=12, color='black')
-        plt.title(f'{serial_number}', fontsize=14, color='red', loc='center')
+    # Create the main part of the title with red serial number and additional labels (Top Ch, Bottom Ch)
+    if serial_number and channel_label:
+        plt.suptitle(f'Temperature Profile Over Time - {dut_type} Serial No: ', fontsize=12)
+        plt.title(f'{serial_number} | {channel_label}', fontsize=14, color='red', loc='center')
+    elif serial_number:
+        plt.suptitle(f'Temperature Profile Over Time - {dut_type} Serial No: ', fontsize=12)
+        plt.title(f'{serial_number}', fontsize=14,color='red', loc='center')
     else:
-        plt.suptitle(f'Temperature Profile Over Time - {dut_type} Serial No: Not Found', fontsize=12)
+        plt.suptitle(f'Temperature Profile Over Time - {dut_type} Serial No: Not Found | {channel_label}', fontsize=12)
 
     # Add labels for the plot
     plt.xlabel('Time')
@@ -244,6 +276,20 @@ try:
                 plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12,label=wrapped_error)
             else:
                 plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12)  # Red dot without label for subsequent occurrences
+
+    # Plot black dots for SO errors but add a single legend entry with the count of occurrences
+    if so_errors1 or so_errors2:
+        all_so_errors = so_errors1 + so_errors2  # Combine SO errors from both JSON files
+        so_count = len(all_so_errors)
+
+        # Plot SO errors as black dots without individual labels
+        for so_error_time in all_so_errors:
+            so_time_obj = pd.to_datetime(so_error_time)
+            closest_index = (time - so_time_obj).abs().idxmin()  # Get the index of the closest match
+            plt.plot(time[closest_index], temperature[closest_index], 'ko', markersize=8)  # Black dot for SO Error
+
+        # Add a single legend entry for SO Error with the count of occurrences
+        plt.plot([], [], 'ko', label=f"SO Error occurred {so_count} time(s)")
 
     # Modify the part of your code where the legend is shown
     plt.legend(loc='upper left')  # This will place the legend in the top-left corner of the plot
