@@ -2,10 +2,11 @@
 # -- Python Script File
 # -- Created on 05/Sept/2024
 # -- Author: AdrianO
-# -- Version 1.3  (09.09.2024)
+# -- Version 1.4  (11.09.2024)
 # -- Script Task: Draw temperature graphic based on all errors from JSON file correlated with the time of BI events.
 # -- Comment Vers 1.2: integrate all errors from Json bitstream only in plot
 # -- Comment Vers 1.3: add also SO read out from all Json files and display on temperature graphic + add channels
+# -- Comment Vers 1.31: limit errors display legend at max 10 errors.
 # -- pip install pandas
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -139,7 +140,6 @@ def process_json_data(file_name):
     return current_file_errors, so_errors  # Return both general errors and SO errors
 
 # Function to determine if errors are in the Top Ch, Bottom Ch, or both
-# Function to determine if errors are in the Top Ch, Bottom Ch, or both
 def determine_channel(errors_json1, errors_json2, so_errors1, so_errors2):
     if (errors_json1 or so_errors1) and (errors_json2 or so_errors2):
         return "Top Ch and Bottom Ch"
@@ -220,7 +220,7 @@ try:
     else:
         print("No DUT number found in the CSV filename.")
 
-    # Clean the 'Temperature' column: Replace values ending with 'm' by converting them to float properly
+    # Clean the Temperature column: Replace values ending with 'm' by converting them to float properly
     df['Temperature'] = df['Temperature'].apply(lambda x: float(x.replace('m', '')) / 1000 if 'm' in str(x) else float(x))
 
     # Convert 'Timestamp.abs' to datetime objects for plotting and comparison
@@ -262,9 +262,16 @@ try:
     # Combine all error times from both JSON files
     all_errors = defaultdict(list, {**errors_json1, **errors_json2})
 
+    # Limit the number of errors to display in the legend
+    max_errors_to_display = 10
+    error_counter = 0
+
     # Highlight errors with red dots and add legend labels for errors
     max_label_width = 50  # Maximum character width before wrapping
     for error, times in all_errors.items():
+        # Stop displaying after max_errors_to_display
+        if error_counter >= max_errors_to_display:
+            break
         # Wrap the error message into multiple lines
         wrapped_error = "\n".join(textwrap.wrap(f"{repr(error)} occurred {len(times)} time(s)", max_label_width))
         for i, error_time in enumerate(times):
@@ -276,6 +283,7 @@ try:
                 plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12,label=wrapped_error)
             else:
                 plt.plot(time[closest_index], temperature[closest_index], 'ro', markersize=12)  # Red dot without label for subsequent occurrences
+        error_counter += 1
 
     # Plot black dots for SO errors but add a single legend entry with the count of occurrences
     if so_errors1 or so_errors2:
@@ -310,3 +318,5 @@ except json.JSONDecodeError as json_err:
 except Exception as e:
     print(f"An error occurred while processing the files: {e}")
 
+
+#update 11.09.2024
