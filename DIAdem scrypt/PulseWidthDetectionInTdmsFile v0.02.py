@@ -102,7 +102,7 @@ tdms_file_path = browse_tdms_file()
 #file_path = r"\\pictshare01\04_Ops\05_Engineering\05_TestEngineering\02_BoardTest\01_TSLH\01_Framework\TestStrategys\2SP0215F2Q\BurnIN\Documentation\DIAdem files glitch detection criteria\TDMS\Glitch3.tdms"
 
 group_name = "DUT Data"
-channel_names = ["DUT4_Gate_A_Signal", "DUT4_Gate_B_Signal"]
+channel_names = ["DUT1_Gate_A_Signal", "DUT1_Gate_B_Signal"]
 threshold = 5
 
 pulse_times, pulse_widths = read_tdms_file(tdms_file_path, group_name, channel_names, threshold)
