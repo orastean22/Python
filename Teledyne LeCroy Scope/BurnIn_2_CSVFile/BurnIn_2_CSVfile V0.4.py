@@ -170,10 +170,11 @@ def log_data_scope_2():
         rm.close()
 
 # Function to start the data acquisition for both scopes in separate threads
-def start_logging():
+def start_logging(start_button):
     global running
     if not running:
        running = True
+       start_button.config(state=tk.DISABLED)  # disable start button after starting
        # Start threads for both scopes
        thread_scope_1 = threading.Thread(target=log_data_scope_1)
        thread_scope_2 = threading.Thread(target=log_data_scope_2)
@@ -203,17 +204,29 @@ def setup_gui():
     root = tk.Tk()
     root.title("Scope Data Logger")
 
+    # Set window size
+    root.geometry("300x300")
+
+    # Add text label on GUI
+    label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
+    label.pack(pady=20)
+
     # Start button
-    start_button = tk.Button(root, text="Start", command=start_logging)
+    start_button = tk.Button(root, text="Start", font=("Arial", 14), command=lambda: start_logging(start_button))
     start_button.pack(pady=10)
 
     # Stop button
-    stop_button = tk.Button(root, text="Stop", command=stop_logging)
+    stop_button = tk.Button(root, text="Stop", font=("Arial", 14), command=stop_logging)
     stop_button.pack(pady=10)
 
     # Exit button
-    exit_button = tk.Button(root, text="Exit", command=lambda: exit_program(root))
+    #exit_button = tk.Button(root, text="Exit", command=lambda: exit_program(root))
+    exit_button = tk.Button(root, text="Exit", font=("Arial", 14), command=lambda: exit_program(root))
     exit_button.pack(pady=10)
+
+    # Display Version on GUI
+    version_label = tk.Label(root, text="V0.4", font=("Arial", 10), anchor="se")
+    version_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)  # Position bottom-right
 
     root.mainloop()
 
