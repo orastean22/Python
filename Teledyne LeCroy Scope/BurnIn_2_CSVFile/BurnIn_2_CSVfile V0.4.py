@@ -2,10 +2,11 @@
 # -- Python Script File
 # -- Created on 08/10/2024
 # -- Author: AdrianO
-# -- Version 0.4 - read all P1-P8 function on all 8 Channels on both scopes + create CSV file + GUI(include Start and
+# -- Version 0.4 - read all P1-P8 function on all 8 Channels on both scopes + create CSV file + GUI include Start and
 # Stop button for recording all events in CSV file + create 2 Threads (one for each scope) to read and log data in real
 # time as possible. Add also two separate CSV files—one for each thread would simplify the process of real-time logging.
 # Add also 0 in CSV file in case that one or more measurement points like P1...P8 do not nave value (no switching unit)
+# Add also 2 green LED status for scope reading info
 # -- Script Task: initiate scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
 
@@ -21,8 +22,18 @@ import os
 # Initialize the VISA resource manager globally
 rm = visa.ResourceManager()
 
-# Global variable to control the data acquisition thread
+# Global variable to control the data acquisition thread and LED status
 running = False
+led_scope_1 = None
+led_scope_2 = None
+
+# Function to change LED status (green if the scopes are connected and reads Pi-P8 values)
+def set_led_status(led, status):
+    if status == "on":
+        led.config(bg="green")
+    else:
+        led.config(bg="grey")
+
 
 # Function to connect to Scope 1
 def connect_to_oscilloscope_1():
@@ -50,7 +61,7 @@ def connect_to_oscilloscope_2():
         return None
 
 # Function to read measurements from the scopes
-def read_measurement_vbs_scope(scope,parameter, scope_name):
+def read_measurement_vbs_scope(scope, parameter, scope_name):
     try:
         command = f"VBS? 'return=app.Measure.{parameter}.Out.Result.Value'"
         value_str = scope.query(command).replace('VBS ', '').strip()
@@ -58,25 +69,25 @@ def read_measurement_vbs_scope(scope,parameter, scope_name):
         # Check if the result is "No Data Available"
         if "No Data Available" in value_str:
             print(f"{scope_name}_{parameter} Measurement: No Data Available")
-            return 0 # Return 0 when no data is available
+            return 0   # Return 0 when no data is available
         else:
             # Convert the cleaned-up string to a float
             value = float(value_str)
 
             # Convert seconds to microseconds and round to 2 decimal
-            value_us = round(value * 1_000_000,2)
+            value_us = round(value * 1_000_000, 2)
             print(f"{scope_name}_{parameter} Measurement Value (in µs): {value_us:.2f} µs")
             return value_us
 
     except Exception as e:
         print(f"Error in VBS command: {e}")
-        return 0 # Return 0 in case of any error
+        return 0   # Return 0 in case of any error
 
 # Function to save measurements to CSV file
 def save_measurements_to_csv(data, filename):
      with open(filename, mode='a', newline='') as file:
-         writer = csv.writer(file, delimiter=';')
-         writer.writerow(data)
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow(data)
 
 # Function to write header to CSV file if it doesn't exist
 def write_csv_header(filename):
@@ -104,6 +115,9 @@ def log_data_scope_1():
     scope_1 = connect_to_oscilloscope_1()
 
     if scope_1:
+        # Turn the LED on  for Scope 1
+        set_led_status(led_scope_1, "on")
+
         while running:
             # Loop through P1 to P8 for Scope 1
             for i in range(1, 9):  # For P1 to P8
@@ -127,6 +141,9 @@ def log_data_scope_1():
                     )
             time.sleep(1)  # Small delay between readings
 
+    # Turn off the LED
+    set_led_status(led_scope_1, "off")
+
     # Close the scope connections after stopping
     scope_1.close()
 
@@ -144,6 +161,9 @@ def log_data_scope_2():
     scope_2 = connect_to_oscilloscope_2()
 
     if scope_2:
+        # Turn the LED on  for Scope 2
+        set_led_status(led_scope_2, "on")
+
         while running:
             # Loop through P1 to P8 for Scope 2
             for i in range(1, 9):
@@ -163,6 +183,9 @@ def log_data_scope_2():
                     )
             time.sleep(1)  # Small delay between readings
 
+        # Turn off the LED
+        set_led_status(led_scope_2, "off")
+
         # Close the scope connection after stopping
         scope_2.close()
 
@@ -175,11 +198,13 @@ def start_logging(start_button):
     if not running:
        running = True
        start_button.config(state=tk.DISABLED)  # disable start button after starting
+
        # Start threads for both scopes
        thread_scope_1 = threading.Thread(target=log_data_scope_1)
        thread_scope_2 = threading.Thread(target=log_data_scope_2)
        thread_scope_1.start()
        thread_scope_2.start()
+
     else:
        messagebox.showinfo("Information", "Data logging is already running.")
 
@@ -201,11 +226,12 @@ def exit_program(root):
 
 # GUI setup
 def setup_gui():
+    global led_scope_1, led_scope_2
     root = tk.Tk()
     root.title("Scope Data Logger")
 
     # Set window size
-    root.geometry("300x300")
+    root.geometry("400x400")
 
     # Add text label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
@@ -220,9 +246,15 @@ def setup_gui():
     stop_button.pack(pady=10)
 
     # Exit button
-    #exit_button = tk.Button(root, text="Exit", command=lambda: exit_program(root))
+    # exit_button = tk.Button(root, text="Exit", command=lambda: exit_program(root))
     exit_button = tk.Button(root, text="Exit", font=("Arial", 14), command=lambda: exit_program(root))
     exit_button.pack(pady=10)
+
+    # LED indicators for Scope 1 and Scope 2
+    led_scope_1 = tk.Label(root, text="Scope 1 Status", font=("Arial", 12), width=15, bg="grey")
+    led_scope_1.pack(pady=10)
+    led_scope_2 = tk.Label(root, text="Scope 2 Status", font=("Arial", 12), width=15, bg="grey")
+    led_scope_2.pack(pady=10)
 
     # Display Version on GUI
     version_label = tk.Label(root, text="V0.4", font=("Arial", 10), anchor="se")
@@ -231,8 +263,7 @@ def setup_gui():
     root.mainloop()
 
 # Main function to set up GUI
+
+
 if __name__ == "__main__":
     setup_gui()
-
-
-
