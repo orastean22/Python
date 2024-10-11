@@ -2,11 +2,12 @@
 # -- Python Script File
 # -- Created on 05/Sept/2024
 # -- Author: AdrianO
-# -- Version 1.31  (11.09.2024)
+# -- Version 1.32  (11.10.2024)
 # -- Script Task: Draw temperature graphic based on all errors from JSON file correlated with the time of BI events.
 # -- Comment Vers 1.2: integrate all errors from Json bitstream only in plot
 # -- Comment Vers 1.3: add also SO read out from all Json files and display on temperature graphic + add channels
 # -- Comment Vers 1.31: limit errors display legend at max 10 errors.
+# -- Comment Vers 1.32 Add legend in lower side left corner to see all errors on temp profile
 # -- pip install pandas
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -303,7 +304,7 @@ try:
     # This will place the legend in the top-left corner of the plot
     # Valid font size are:xx - small, x - small, small, medium, large, x - large, xx - large, larger, smaller, None
     # Values are 'best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center'
-    plt.legend(loc='upper left', fontsize='x-small')
+    plt.legend(loc='lower left', fontsize='x-small')
 
     # Show the plot
     plt.tight_layout()  # Adjust layout to prevent clipping of labels
@@ -319,4 +320,4 @@ except Exception as e:
     print(f"An error occurred while processing the files: {e}")
 
 
-#update 11.09.2024
+#update 11.10.2024
