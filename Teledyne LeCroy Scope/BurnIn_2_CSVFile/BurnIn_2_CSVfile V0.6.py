@@ -1,11 +1,14 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 08/10/2024
+# -- Update on 14/10/2024
 # -- Author: AdrianO
-# -- Version 0.6 -- read all data in 15 sec and increment a flag sum in the file
+# -- Version 0.6  - if the scope is in trigger mode normal read only data that < threshold on console 
+#                 - read all data in 15 sec and increment a flag sum in the file
 #                
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
+
 
 import time
 import csv
@@ -22,6 +25,7 @@ rm = visa.ResourceManager()
 
 # Global variable to control the data acquisition thread and LED status
 running_event = threading.Event()
+number_of_scopes = 2  # Default to 2 scopes
 led_scope_1 = None
 led_scope_2 = None
 
@@ -118,7 +122,7 @@ def read_all_measurements_vbs_scope(scope, scope_name):
         return [0] * 8  # Return a list of 0s if there's an error
 '''
 
-def read_all_measurements_vbs_scope(scope, scope_name, previous_measurements):
+def read_all_measurements_vbs_scope(scope, scope_name):
     try:
         # Initialize an empty list to store measurement values
         values_us = []
@@ -138,11 +142,10 @@ def read_all_measurements_vbs_scope(scope, scope_name, previous_measurements):
                 value_us = round(float(value_str) * 1_000_000, 6)  # Convert to microseconds
                 values_us.append(value_us)
 
-        # Check and print all measurements only when below threshold and the value changed
+        # Print all measurements for this scope
         for i, value in enumerate(values_us, start=1):
-            if value != previous_measurements[i-1] and value < threshold_value:  # Check if the value changed and is below threshold
-                print(f"Value changed and below threshold for {scope_name}_P{i}: {value:.6f} µs")
-            previous_measurements[i - 1] = value  # Update previous measurement for next comparison
+            if value < threshold_value:  # Check if the value is smaller than the threshold + display all in console
+                    print(f"{scope_name}_P{i} Measurement Value (in µs): {value:.6f} µs")
         return values_us
 
     except Exception as e:
@@ -150,31 +153,10 @@ def read_all_measurements_vbs_scope(scope, scope_name, previous_measurements):
         return [0] * 8  # Return a list of 0s if there's an error
 
 # Function to save measurements to CSV file
-# Function to save measurements to CSV file
-'''def save_measurements_to_csv(data, filename):
-   try:
-       print(f"Attempting to save to CSV with data: {data}")  # Debug print
-       with open(filename, mode='a', newline='') as file:
-            writer = csv.writer(file, delimiter=';')
-            writer.writerow(data)
-       print(f"Data successfully saved to file: {filename}")  # Confirmation message
-
-   except Exception as e:
-       print(f"Error saving to CSV: {e}")
-'''
-
-# Function to save measurements to CSV file
 def save_measurements_to_csv(data, filename):
-    try:
-        print(f"Attempting to save to CSV with data: {data}")  # Debug print
-        with open(filename, mode='a', newline='') as file:
-            writer = csv.writer(file, delimiter=';')
-            writer.writerow(data)
-        print(f"Data successfully saved to file: {filename}")  # Confirmation message
-
-    except Exception as e:
-        print(f"Error saving to CSV: {e}")
-
+    with open(filename, mode='a', newline='') as file:
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow(data)
 
 # Function to write header to CSV file if it doesn't exist
 def write_csv_header(filename):
@@ -185,7 +167,6 @@ def write_csv_header(filename):
                       'Fault B Flag', 'Temperature', 'Humidity']
             writer.writerow(header)
 
-# Thread function to log data from Scope 1
 # Thread function to log data from Scope 1
 def log_data_scope_1():
     scope_1 = None  # Initialize scope_1 variable
@@ -202,34 +183,29 @@ def log_data_scope_1():
         scope_1 = connect_to_oscilloscope_1()
 
         if scope_1:
-            # Turn the LED on for Scope 1
+            # Turn the LED on  for Scope 1
             set_led_status(led_scope_1, "on")
 
             while running_event.is_set():
                 # Record the timestamp + milliseconds -> # [:-3] Truncate to get uS
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
-                # Add additional raw data (Ex: Any Flag, Fault A Flag, Fault B Flag, Temperature, Humidity)
+                # Add additional raw data (Ex: ....ANY FLAG, FAULT A FLAG, FAULT B FLAG, TEMPERATURE, HUMIDITY)
                 any_flag = fault_a_flag = fault_b_flag = 0
                 temperature = 25.0
                 humidity = 45.0
 
                 # Read all measurements from Scope 1 (P1 to P8 in one shot)
-                measurement_scope_1 = read_all_measurements_vbs_scope(scope_1, "Scope_1_BOT_CH", previous_measurements)
+                measurement_scope_1 = read_all_measurements_vbs_scope(scope_1, "Scope_1_BOT_CH")
 
-                # Log all measurements to CSV file only when below threshold and avoid logging duplicates
+                # Log all measurements to CSV file only when below threshold
                 for i, measurement in enumerate(measurement_scope_1, start=1):
-                    print(f"Checking {f'P{i}'}: {measurement} against previous: {previous_measurements[i-1]}")
-                    if measurement != previous_measurements[i-1] and measurement < threshold_value:
-                        print(f"Measurement is new and below threshold for {f'P{i}'}: {measurement}")
-                        parameter = f"P{i}"
-                        save_measurements_to_csv([timestamp, "Scope_1_BOT_CH", parameter, measurement, any_flag,
+                    if measurement != previous_measurements[i-1]:  # check if the value was change
+                        if measurement > 0 and measurement < threshold_value:  # Log values below threshold only
+                            parameter = f"P{i}"
+                            save_measurements_to_csv([timestamp, "Scope_1_BOT_CH", parameter, measurement, any_flag,
                                                   fault_a_flag, fault_b_flag, temperature, humidity], csv_filename)
-
-                        # Update previous measurement after saving
-                        previous_measurements[i - 1] = measurement
-                        print(f"Updated previous measurement for P{i}: {previous_measurements[i - 1]}")
-
+                            previous_measurements[i-1] = measurement   # update previous measurement for next comp
     except Exception as e:
         print(f"Error in log_data_scope_1: {e}")
     finally:
@@ -239,6 +215,8 @@ def log_data_scope_1():
                 scope_1.close()  # Safely close the session
             except Exception as e:
                 print(f"Error closing scope_1: {e}")
+            # time.sleep(0.1)  # Delay between readings for updates every 100 milliseconds (10 times per second)
+            # time.sleep(0.01)  # Read every 10ms (100 times per second)
 
 # Thread function to log data from Scope 2
 def log_data_scope_2():
@@ -256,44 +234,33 @@ def log_data_scope_2():
         scope_2 = connect_to_oscilloscope_2()
 
         if scope_2:
-            # Turn the LED on for Scope 2
+            # Turn the LED on  for Scope 2
             set_led_status(led_scope_2, "on")
 
             while running_event.is_set():
                 # Record the timestamp + milliseconds -> # [:-3] Truncate to get uS
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
-                # Add additional raw data (Ex: Any Flag, Fault A Flag, Fault B Flag, Temperature, Humidity)
+                # Add additional raw data (Ex: ....ANY FLAG, FAULT A FLAG, FAULT B FLAG, TEMPERATURE, HUMIDITY)
                 any_flag = fault_a_flag = fault_b_flag = 0
                 temperature = 25.0
                 humidity = 45.0
 
                 # Read all measurements from Scope 2 (P1 to P8 in one shot)
-                measurement_scope_2 = read_all_measurements_vbs_scope(scope_2, "Scope_2_TOP_CH", previous_measurements)
+                measurement_scope_2 = read_all_measurements_vbs_scope(scope_2, "Scope_2_TOP_CH")
 
-                # Log all measurements to CSV file only when below threshold and avoid logging duplicates
+                # Log all measurements to CSV file only when below threshold
                 for i, measurement in enumerate(measurement_scope_2, start=1):
-                    print(f"Checking {f'P{i}'}: {measurement} against previous: {previous_measurements[i-1]}")
-                    if measurement != previous_measurements[i-1] and measurement < threshold_value:
-                        print(f"Value changed and below threshold for {f'P{i}'}: {measurement}")
-                        parameter = f"P{i}"
-
-                        # Extra debug print before saving to CSV
-                        print(f"Saving data for {parameter} to CSV. Data: {measurement}")
-
-                        # Save to CSV without skipping if the condition is met
-                        save_measurements_to_csv([timestamp, "Scope_2_TOP_CH", parameter, measurement, any_flag,
-                                                  fault_a_flag, fault_b_flag, temperature, humidity], csv_filename)
-
-                        # Update the previous measurement after logging it
-                        previous_measurements[i - 1] = measurement
-                        print(f"Updated previous measurement for P{i}: {previous_measurements[i - 1]}")
-
-                    else:
-                        print(f"No need to log {f'P{i}'}: {measurement} (either not changed or above threshold).")
-
+                    if measurement != previous_measurements[i - 1]:  # check if the value was change
+                        if measurement > 0 and measurement < threshold_value:  # Log values below threshold only
+                            parameter = f"P{i}"
+                            save_measurements_to_csv(
+                            [timestamp, "Scope_2_TOP_CH", parameter, measurement, any_flag, fault_a_flag, fault_b_flag,
+                             temperature, humidity], csv_filename)
+                            previous_measurements[i - 1] = measurement  # update previous measurement for next comp
     except Exception as e:
         print(f"Error in log_data_scope_2: {e}")
+
     finally:
         if scope_2:
             try:
@@ -301,21 +268,31 @@ def log_data_scope_2():
                 scope_2.close()  # Safely close the session
             except Exception as e:
                 print(f"Error closing scope_2: {e}")
+            # time.sleep(0.1)  # Delay between readings for updates every 100 milliseconds (10 times per second)
+            # time.sleep(0.01)  # Read every 10ms (100 times per second)
 
 
-# Function to start the data acquisition for both scopes in separate threads
-def start_logging(start_button, threshold_entry):
-    global threshold_value
+# Function to start data acquisition for one or both scopes in separate threads
+def start_logging(start_button, threshold_entry, scope_selection):
+    global threshold_value, number_of_scopes
     threshold_value = float(threshold_entry.get())  # Get threshold from the user entry GUI box
 
     if not running_event.is_set():
         running_event.set()
-        print(f"Running Event Set: {running_event.is_set()}")
         start_button.config(state=tk.DISABLED)  # disable start button after starting
+        number_of_scopes = scope_selection.get() # Get the selected number of scopes (1 or 2)
 
-        # Start threads for both scopes
-        threading.Thread(target=log_data_scope_1).start()
-        threading.Thread(target=log_data_scope_2).start()
+        if not running_event.is_set():
+            running_event.set()
+            start_button.config(state=tk.DISABLED)  # Disable start button after starting
+        
+         # Start threads based on the number of scopes selected
+        if number_of_scopes == 1:
+            threading.Thread(target=log_data_scope_1).start()
+        else:
+            threading.Thread(target=log_data_scope_1).start()
+            threading.Thread(target=log_data_scope_2).start()
+            
     else:
         messagebox.showinfo("Information", "Data logging is already running.")
 
@@ -347,7 +324,7 @@ def setup_gui():
     root.title("Scope Data Logger")
 
     # Set window size
-    root.geometry("400x400")
+    root.geometry("400x500")
 
     # Add title label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
@@ -359,10 +336,28 @@ def setup_gui():
     threshold_entry = tk.Entry(root, font=("Arial", 12))
     threshold_entry.insert(0, "40.0")  # Default threshold value
     threshold_entry.pack(pady=5)
+    
+    # Scope selection label
+    scope_label = tk.Label(root, text="Select number of scopes:", font=("Arial", 12))
+    scope_label.pack() 
+    
+    # Frame for radio buttons
+    scope_frame = tk.Frame(root)
+    scope_frame.pack(pady=5)
+
+    # Variable to store scope selection (1 or 2)
+    scope_selection = tk.IntVar()
+    scope_selection.set(2)  # Default to 2 scopes
+     
+    # Radio buttons for selecting 1 or 2 scopes 
+    scope_1_radio = tk.Radiobutton(scope_frame, text="1 Scope", variable=scope_selection, value=1, font=("Arial", 12))
+    scope_2_radio = tk.Radiobutton(scope_frame, text="2 Scopes", variable=scope_selection, value=2, font=("Arial", 12))
+    scope_1_radio.pack(side="left", padx=5)
+    scope_2_radio.pack(side="left", padx=5)
 
     # Start button to trigger data logging
     start_button = tk.Button(root, text="Start", font=("Arial", 14),
-                             command=lambda: start_logging(start_button, threshold_entry))
+                             command=lambda: start_logging(start_button, threshold_entry, scope_selection))
     start_button.pack(pady=10)
 
     # Stop button to stop data logging
@@ -380,14 +375,12 @@ def setup_gui():
     led_scope_2.pack(pady=10)
 
     # Display Version on GUI
-    version_label = tk.Label(root, text="V0.5", font=("Arial", 10), anchor="se")
+    version_label = tk.Label(root, text="V0.6", font=("Arial", 10), anchor="se")
     version_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)  # Position bottom-right
 
     root.mainloop()
 
 
 # Main function to set up GUI
-
-
 if __name__ == "__main__":
     setup_gui()
