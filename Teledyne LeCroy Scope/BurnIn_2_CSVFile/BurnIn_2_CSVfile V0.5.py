@@ -6,7 +6,7 @@
 #                - Read much faster in mS like an active monitoring system
 #                - Read all P1-P8 at the same time with updated read_all_measurements_vbs_scope method
 #                - Include adjustable threshold for CSV logging in the GUI.
-#                - read all data in 15 sec and increment a flag sum in the file
+#                - add from GUI if we work with 1 or 2 scopes
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
 
@@ -25,6 +25,7 @@ rm = visa.ResourceManager()
 
 # Global variable to control the data acquisition thread and LED status
 running_event = threading.Event()
+number_of_scopes = 2  # Default to 2 scopes
 led_scope_1 = None
 led_scope_2 = None
 
@@ -271,18 +272,27 @@ def log_data_scope_2():
             # time.sleep(0.01)  # Read every 10ms (100 times per second)
 
 
-# Function to start the data acquisition for both scopes in separate threads
-def start_logging(start_button, threshold_entry):
-    global threshold_value
+# Function to start data acquisition for one or both scopes in separate threads
+def start_logging(start_button, threshold_entry, scope_selection):
+    global threshold_value, number_of_scopes
     threshold_value = float(threshold_entry.get())  # Get threshold from the user entry GUI box
 
     if not running_event.is_set():
         running_event.set()
         start_button.config(state=tk.DISABLED)  # disable start button after starting
+        number_of_scopes = scope_selection.get() # Get the selected number of scopes (1 or 2)
 
-        # Start threads for both scopes
-        threading.Thread(target=log_data_scope_1).start()
-        threading.Thread(target=log_data_scope_2).start()
+        if not running_event.is_set():
+            running_event.set()
+            start_button.config(state=tk.DISABLED)  # Disable start button after starting
+        
+         # Start threads based on the number of scopes selected
+        if number_of_scopes == 1:
+            threading.Thread(target=log_data_scope_1).start()
+        else:
+            threading.Thread(target=log_data_scope_1).start()
+            threading.Thread(target=log_data_scope_2).start()
+            
     else:
         messagebox.showinfo("Information", "Data logging is already running.")
 
@@ -314,7 +324,7 @@ def setup_gui():
     root.title("Scope Data Logger")
 
     # Set window size
-    root.geometry("400x400")
+    root.geometry("400x500")
 
     # Add title label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
@@ -326,10 +336,28 @@ def setup_gui():
     threshold_entry = tk.Entry(root, font=("Arial", 12))
     threshold_entry.insert(0, "40.0")  # Default threshold value
     threshold_entry.pack(pady=5)
+    
+    # Scope selection label
+    scope_label = tk.Label(root, text="Select number of scopes:", font=("Arial", 12))
+    scope_label.pack() 
+    
+    # Frame for radio buttons
+    scope_frame = tk.Frame(root)
+    scope_frame.pack(pady=5)
+
+    # Variable to store scope selection (1 or 2)
+    scope_selection = tk.IntVar()
+    scope_selection.set(2)  # Default to 2 scopes
+     
+    # Radio buttons for selecting 1 or 2 scopes 
+    scope_1_radio = tk.Radiobutton(scope_frame, text="1 Scope", variable=scope_selection, value=1, font=("Arial", 12))
+    scope_2_radio = tk.Radiobutton(scope_frame, text="2 Scopes", variable=scope_selection, value=2, font=("Arial", 12))
+    scope_1_radio.pack(side="left", padx=5)
+    scope_2_radio.pack(side="left", padx=5)
 
     # Start button to trigger data logging
     start_button = tk.Button(root, text="Start", font=("Arial", 14),
-                             command=lambda: start_logging(start_button, threshold_entry))
+                             command=lambda: start_logging(start_button, threshold_entry, scope_selection))
     start_button.pack(pady=10)
 
     # Stop button to stop data logging
