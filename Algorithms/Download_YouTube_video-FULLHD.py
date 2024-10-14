@@ -31,8 +31,8 @@ if __name__ == "__main__":
     # Ask the user to input the YouTube URL and output path
     url = input("Enter the YouTube URL: ")
     # output_path = '/Users/adrianorastean/Desktop/VIDEOCLIPS/'
-    output_path = '/Users/adrianorastean/Desktop/Trading Time/'
-    # output_path = '/Users/adrianorastean/Desktop/AUDIOBooks/'
+    # output_path = '/Users/adrianorastean/Desktop/Trading Time/'
+    output_path = '/Users/adrianorastean/Desktop/AUDIOBooks/'
 
     download_video(url, output_path)
 
