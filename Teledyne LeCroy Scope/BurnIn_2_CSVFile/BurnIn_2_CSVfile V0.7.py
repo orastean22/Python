@@ -1,10 +1,9 @@
-# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 08/10/2024
 # -- Update on 15/10/2024
 # -- Author: AdrianO
-# -- Version 0.7  - display on GUI how many glitch ware detected on each scope
-#                 - read all data in 15 sec and increment a flag sum in the file
+# -- Version 0.7 - display on GUI(red) how many glitch were found on each scope - counter
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
 
@@ -24,9 +23,13 @@ rm = visa.ResourceManager()
 # Global variable to control the data acquisition thread and LED status
 running_event = threading.Event()
 number_of_scopes = 2  # Default to 2 scopes
-console_output_enabled = True  # Default to True (printing enabled)
+console_output_enabled = True  # Default to True (printing enable)
 led_scope_1 = None
 led_scope_2 = None
+
+# Glitch counters for Scope 1 and Scope 2
+glitch_count_scope_1 = 0
+glitch_count_scope_2 = 0
 
 # Variable that holds threshold value, default is 40.0 µs as pulse width
 threshold_value = 40.0
@@ -66,61 +69,6 @@ def connect_to_oscilloscope_2():
         return None
 
 # Function to read measurements from the scopes (P1 to P8)
-'''def read_measurement_vbs_scope(scope, parameter, scope_name):
-    try:
-        command = f"VBS? 'return=app.Measure.{parameter}.Out.Result.Value'"
-        value_str = scope.query(command).replace('VBS ', '').strip()
-
-        # Check if the result is "No Data Available"
-        if "No Data Available" in value_str:
-            print(f"{scope_name}_{parameter} Measurement: No Data Available")
-            return 0   # Return 0 when no data is available
-        else:
-            # Convert the cleaned-up string to a float
-            value = float(value_str)
-
-            # Convert seconds to microseconds and round to 2 decimal
-            value_us = round(value * 1_000_000, 4)
-            print(f"{scope_name}_{parameter} Measurement Value (in µs): {value_us:.4f} µs")
-            return value_us
-
-    except Exception as e:
-        print(f"Error in VBS command: {e}")
-        return 0   # Return 0 in case of any error
-'''
-
-'''
-def read_all_measurements_vbs_scope(scope, scope_name):
-    try:
-        # Initialize an empty list to store measurement values
-        values_us = []
-
-        # Query each P1 to P8 measurement individually in Python
-        for i in range(1, 9):
-            # VBS command to retrieve each measurement (P1 to P8)
-            command = f"VBS? 'return=app.Measure.P{i}.Out.Result.Value'"
-
-            # Query the oscilloscope for the current measurement
-            value_str = scope.query(command).replace('VBS ', '').strip()
-
-            # Check if the result is valid and convert it to float
-            if "No Data Available" in value_str or value_str == "":
-                values_us.append(0)  # Append 0 if no data available
-            else:
-                value_us = round(float(value_str) * 1_000_000, 6)  # Convert to uS
-                values_us.append(value_us)
-
-        # Print all measurements for this scope
-        for i, value in enumerate(values_us, start=1):
-            print(f"{scope_name}_P{i} Measurement Value (in µs): {value:.6f} µs")
-
-        return values_us
-
-    except Exception as e:
-        print(f"Error in VBS command for {scope_name}: {e}")
-        return [0] * 8  # Return a list of 0s if there's an error
-'''
-
 def read_all_measurements_vbs_scope(scope, scope_name):
     try:
         # Initialize an empty list to store measurement values
@@ -182,6 +130,7 @@ def toggle_console_output(toggle_button):
 
 # Thread function to log data from Scope 1
 def log_data_scope_1():
+    global glitch_count_scope_1  # variable for use the global glitch counter for Scope 1
     scope_1 = None  # Initialize scope_1 variable
     previous_measurements = [None] * 8  # Init previous measurements to track changes for P1-P8
     try:
@@ -213,12 +162,20 @@ def log_data_scope_1():
 
                 # Log all measurements to CSV file only when below threshold
                 for i, measurement in enumerate(measurement_scope_1, start=1):
-                    if measurement != previous_measurements[i-1]:  # check if the value was change
+                    if measurement != previous_measurements[i-1]:  # check if the value has changed
                         if measurement > 0 and measurement < threshold_value:  # Log values below threshold only
                             parameter = f"P{i}"
+                            
+                            # Increment glitch count for Scope 1 and update label
+                            global glitch_count_scope_1
+                            glitch_count_scope_1 += 1
+                            detected_glitch_label_1.config(text=f"Detected Glitches Scope 1: {glitch_count_scope_1}")
+                             
+                            # Save to CSV after updating the counter
                             save_measurements_to_csv([timestamp, "Scope_1_BOT_CH", parameter, measurement, any_flag,
                                                   fault_a_flag, fault_b_flag, temperature, humidity], csv_filename)
-                            previous_measurements[i-1] = measurement   # update previous measurement for next comp
+                            previous_measurements[i-1] = measurement   # update previous measurement for next comparison
+                            
     except Exception as e:
         print(f"Error in log_data_scope_1: {e}")
     finally:
@@ -233,6 +190,7 @@ def log_data_scope_1():
 
 # Thread function to log data from Scope 2
 def log_data_scope_2():
+    global glitch_count_scope_2  # variable for use the global glitch counter for Scope 1
     scope_2 = None  # Initialize scope_2 variable
     previous_measurements = [None] * 8  # Init previous measurements to track changes for P1-P8
     try:
@@ -267,10 +225,18 @@ def log_data_scope_2():
                     if measurement != previous_measurements[i - 1]:  # check if the value was change
                         if measurement > 0 and measurement < threshold_value:  # Log values below threshold only
                             parameter = f"P{i}"
+                            
+                            # Increment glitch count for Scope 1 and update label
+                            global glitch_count_scope_2
+                            glitch_count_scope_2 += 1
+                            detected_glitch_label_2.config(text=f"Detected Glitches Scope 2: {glitch_count_scope_2}")
+                            
+                            # Save to CSV after updating the counter
                             save_measurements_to_csv(
                             [timestamp, "Scope_2_TOP_CH", parameter, measurement, any_flag, fault_a_flag, fault_b_flag,
                              temperature, humidity], csv_filename)
-                            previous_measurements[i - 1] = measurement  # update previous measurement for next comp
+                            previous_measurements[i - 1] = measurement  # update previous measurement for next comparison
+                            
     except Exception as e:
         print(f"Error in log_data_scope_2: {e}")
 
@@ -321,8 +287,10 @@ def stop_logging():
     if running_event.is_set():
         running_event.clear()
         messagebox.showinfo("Information", "Data logging stopped.")
+        time.sleep(0.1)  # Delay to allow final updates to be processed on GUI and CSV
     else:
         messagebox.showinfo("Information", "Data logging is not running.")
+
 
 
 # Function to exit the program
@@ -338,12 +306,16 @@ def exit_program(root):
 
 # GUI setup
 def setup_gui():
-    global led_scope_1, led_scope_2
+    global led_scope_1, led_scope_2, detected_glitch_label_1, detected_glitch_label_2, glitch_count_scope_1, glitch_count_scope_2
     root = tk.Tk()
     root.title("Scope Data Logger")
 
+    # Initialize glitch counts to 0
+    glitch_count_scope_1 = 0
+    glitch_count_scope_2 = 0
+    
     # Set window size
-    root.geometry("400x600")
+    root.geometry("450x640")
 
     # Add title label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
@@ -397,8 +369,15 @@ def setup_gui():
     led_scope_2 = tk.Label(root, text="Scope 2 Status", font=("Arial", 12), width=15, bg="grey")
     led_scope_2.pack(pady=10)
 
+    # Labels for detected glitches in Scope 1 and Scope 2
+    detected_glitch_label_1 = tk.Label(root, text="Glitch Detected on Scope_1: 0", font=("Arial", 12))
+    detected_glitch_label_1.pack(pady=10)
+    
+    detected_glitch_label_2 = tk.Label(root, text="Glitch Detected on Scope_2: 0", font=("Arial", 12))
+    detected_glitch_label_2.pack(pady=10)
+    
     # Display Version on GUI
-    version_label = tk.Label(root, text="V0.6", font=("Arial", 10), anchor="se")
+    version_label = tk.Label(root, text="V0.7 by AdrianO", font=("Arial", 10), anchor="se")
     version_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)  # Position bottom-right
 
     root.mainloop()
@@ -407,6 +386,6 @@ def setup_gui():
 if __name__ == "__main__":
     setup_gui()
 
-# update 15.10.2024 xx:13 PM
+# update 15.10.2024 18:00 PM
 # END
     
