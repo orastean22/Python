@@ -3,9 +3,8 @@
 # -- Created on 08/10/2024
 # -- Update on 15/10/2024
 # -- Author: AdrianO
-# -- Version 0.6  - if the scope is in trigger mode normal read only data that < threshold on console
-#                 - enable/disable from GUI to display continue reading in console             
-#                 - after start process - disable the radio button that remain unselected for chose 1 or 2 scopes
+# -- Version 0.7  - display on GUI how many glitch ware detected on each scope
+#                 - read all data in 15 sec and increment a flag sum in the file
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
 
@@ -408,6 +407,6 @@ def setup_gui():
 if __name__ == "__main__":
     setup_gui()
 
-# update 15.10.2024 13:15 PM
+# update 15.10.2024 xx:13 PM
 # END
     
