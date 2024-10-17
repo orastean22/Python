@@ -3,7 +3,7 @@
 # -- Created on 08/10/2024
 # -- Update on 15/10/2024
 # -- Author: AdrianO
-# -- Version 0.7 - display on GUI(red) how many glitch were found on each scope - counter
+# -- Version 0.7 - display on GUI how many glitch were found on each scope - counter
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
 
