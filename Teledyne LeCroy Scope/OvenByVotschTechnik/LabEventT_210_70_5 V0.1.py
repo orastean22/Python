@@ -11,6 +11,7 @@
 # -- Serial Interface ASCII; Address: 1: Baud rate: 9600; Modbus: TCP
 # -- pip install pymodbus requests pyvisa
 
+'''
 import socket
 
 # IP address and port of the oven
@@ -33,6 +34,32 @@ print(f"Response: {response.decode('utf-8')}")
 
 # Close the connection
 sock.close()
+
+'''
+from pymodbus.client import ModbusTcpClient
+
+# IP address and port of the oven controller
+OVEN_IP = '10.30.11.30'
+PORT = 502  # Standard Modbus port, check the manual
+
+# Modbus register for setting temperature (this must be provided by the manual)
+TEMPERATURE_REGISTER = 40001  # Example register, replace with actual
+
+# Create a client connection
+client = ModbusTcpClient(OVEN_IP, port=PORT)
+
+# Function to set temperature (in °C)
+def set_temperature(temperature):
+    # Assuming the temperature value is an integer in degrees Celsius
+    client.write_register(TEMPERATURE_REGISTER, temperature)
+    print(f"Temperature set to {temperature}°C")
+
+# Set the desired temperature
+desired_temperature = 85  # Replace with the desired temperature
+set_temperature(desired_temperature)
+
+# Close the client connection
+client.close()
 
 
 # END
