@@ -74,7 +74,7 @@ def read_all_measurements_vbs_scope(scope, scope_name):
         # Initialize an empty list to store measurement values
         values_us = []
 
-        # Query each P1 to P8 measurement individually in Python
+        # Query each P1 to P8 measurement individually
         for i in range(1, 9):
             # VBS command to retrieve each measurement (P1 to P8)
             command = f"VBS? 'return=app.Measure.P{i}.Out.Result.Value'"
