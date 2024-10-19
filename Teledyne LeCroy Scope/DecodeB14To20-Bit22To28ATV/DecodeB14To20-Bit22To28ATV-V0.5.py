@@ -3,6 +3,7 @@
 # -- Created on 04/21/2024 10:30:56  update 19.10.2024
 # -- Author: AdrianO
 # -- V0.5 update script to read bits from 2-12 for NTC temperature.
+#           -- also read bit 26 and 27 as separated function for test 150 and 155 in ATV project           
 # -- Comment: Decode BitStream B_OUT[14..20] and B_OUT[22..28]
 # -- The extract_and_convert function extracts the specific bits and converts the extracted substring to a decimal number
 # -- DecodeB14To20-Bit22To28ATV-V0.3 + inverted bitstream + decode in decimal whole bitstream
@@ -39,8 +40,43 @@ def decode_entire_bitstream(binary_num):
     decimal_value = int(binary_num, 2)
     return decimal_value
 
+def read_bit_26(binary_num):
+    # Invert the bitstream
+    inverted_binary_num = invert_bits(binary_num)
+
+    # Reverse the bitstream to read bits from right to left
+    reversed_binary_num = inverted_binary_num[::-1]
+
+    # Extract bit 26 (0-based index = 25)
+    bit_26 = reversed_binary_num[25]
+
+    # Convert the bit to a decimal value
+    decimal_value = int(bit_26, 2)
+
+    # Return the bit value in binary and decimal
+    return bit_26, decimal_value
+
+
+def read_bit_27(binary_num):
+    # Invert the bitstream
+    inverted_binary_num = invert_bits(binary_num)
+
+    # Reverse the bitstream to read bits from right to left
+    reversed_binary_num = inverted_binary_num[::-1]
+
+    # Extract bit 27 (0-based index = 26)
+    bit_27 = reversed_binary_num[26]
+
+    # Convert the bit to a decimal value
+    decimal_value = int(bit_27, 2)
+
+    # Return the bit value in binary and decimal
+    return bit_27, decimal_value
+
+
+
 # 27-bit bitstream from scope
-binary_num_27 = "111111111111000111111000000"
+binary_num_27 = "111111100000000111010011111"
 
 # Counting the bits in bitstream
 total_bits = len(binary_num_27)
@@ -61,6 +97,14 @@ print(f"27-bit stream: Bits 21 to 27 (reversed) are: {binary_21_27_27}, Decimal 
 # Decode the entire bitstream to a decimal number
 entire_bitstream_decimal = decode_entire_bitstream(binary_num_27)
 print(f"27-bit stream: Entire bitstream in decimal is: {entire_bitstream_decimal}")
+
+# Call the function to read bit 26
+bit_26_binary, bit_26_decimal = read_bit_26(binary_num_27)
+print(f"Bit 26 (reversed) is: {bit_26_binary}, Decimal (reversed) is: {bit_26_decimal}")
+
+# Call the function to read bit 27
+bit_27_binary, bit_27_decimal = read_bit_27(binary_num_27)
+print(f"Bit 27 (reversed) is: {bit_27_binary}, Decimal (reversed) is: {bit_27_decimal}")
 
 # Display the inverted binary, reversed binary and count bits in binary_num_27
 print(f"Original binary: {binary_num_27}")
