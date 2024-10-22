@@ -7,7 +7,7 @@
 # -- Script Task: Remote control LabEvent oven for Burin IN 2 (set and read temperature and humidity)
 # -- Oven Brand: Votschtechnik
 # -- Oven Model: LabEvent T/210/70/5
-# -- Setting the IP: 10.30.11.30
+# -- Setting the IP: 10.30.11.30 - not working
 # -- Serial Interface ASCII; Address: 1: Baud rate: 9600; Modbus: TCP
 # -- pip install pymodbus requests pyvisa
 
