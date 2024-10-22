@@ -1,11 +1,11 @@
 # ----------------------------------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 08/10/2024
-# -- Update on 15/10/2024
+# -- Update on 14/10/2024
 # -- Author: AdrianO
 # -- Version 0.6  - if the scope is in trigger mode normal read only data that < threshold on console
-#                 - enable/disable from GUI to display continue reading in console             
-#                 - after start process - disable the radio button that remain unselected for chose 1 or 2 scopes
+#                 - read all data in 15 sec and increment a flag sum in the file
+#                 - display on GUI how many glitch ware detected on each scope
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
 
@@ -25,7 +25,6 @@ rm = visa.ResourceManager()
 # Global variable to control the data acquisition thread and LED status
 running_event = threading.Event()
 number_of_scopes = 2  # Default to 2 scopes
-console_output_enabled = True  # Default to True (printing enabled)
 led_scope_1 = None
 led_scope_2 = None
 
@@ -141,13 +140,11 @@ def read_all_measurements_vbs_scope(scope, scope_name):
             else:
                 value_us = round(float(value_str) * 1_000_000, 6)  # Convert to microseconds
                 values_us.append(value_us)
-         
-        # Print all measurements for this scope 
-        if console_output_enabled:
-            for i, value in enumerate(values_us, start=1):
-                #if value < threshold_value:  # Check if the value is smaller than the threshold + display all in console
+
+        # Print all measurements for this scope
+        for i, value in enumerate(values_us, start=1):
+            if value < threshold_value:  # Check if the value is smaller than the threshold + display all in console
                     print(f"{scope_name}_P{i} Measurement Value (in µs): {value:.6f} µs")
-        
         return values_us
 
     except Exception as e:
@@ -168,18 +165,6 @@ def write_csv_header(filename):
             header = ['Timestamp', 'Scope', 'Parameter', 'Measurement (µs)', 'Any Flag', 'Fault A Flag',
                       'Fault B Flag', 'Temperature', 'Humidity']
             writer.writerow(header)
-
-# Function that enable/disable console output
-def toggle_console_output(toggle_button):
-    global console_output_enabled
-    
-    # take the value from GUI
-    console_output_enabled = not console_output_enabled  
-    if console_output_enabled:
-        toggle_button.config(text="Disable Console Output")
-    else:
-        toggle_button.config(text="Enable Console Output")
-
 
 # Thread function to log data from Scope 1
 def log_data_scope_1():
@@ -229,7 +214,7 @@ def log_data_scope_1():
                 scope_1.close()  # Safely close the session
             except Exception as e:
                 print(f"Error closing scope_1: {e}")
-            # time.sleep(0.1)  # Delay between readings for updates every xxx mS
+            # time.sleep(0.1)  # Delay between readings for updates every 100 milliseconds (10 times per second)
             # time.sleep(0.01)  # Read every 10ms (100 times per second)
 
 # Thread function to log data from Scope 2
@@ -287,7 +272,7 @@ def log_data_scope_2():
 
 
 # Function to start data acquisition for one or both scopes in separate threads
-def start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio):
+def start_logging(start_button, threshold_entry, scope_selection):
     global threshold_value, number_of_scopes
     threshold_value = float(threshold_entry.get())  # Get threshold from the user entry GUI box
 
@@ -295,17 +280,11 @@ def start_logging(start_button, threshold_entry, scope_selection, scope_1_radio,
         running_event.set()
         start_button.config(state=tk.DISABLED)  # disable start button after starting
         number_of_scopes = scope_selection.get() # Get the selected number of scopes (1 or 2)
-        
-         # Disable unselected radio button
-        if number_of_scopes == 1:
-            scope_2_radio.config(state=tk.DISABLED)
-        else:
-            scope_1_radio.config(state=tk.DISABLED)
-            
+
         if not running_event.is_set():
             running_event.set()
             start_button.config(state=tk.DISABLED)  # Disable start button after starting
-                                              
+        
          # Start threads based on the number of scopes selected
         if number_of_scopes == 1:
             threading.Thread(target=log_data_scope_1).start()
@@ -344,7 +323,7 @@ def setup_gui():
     root.title("Scope Data Logger")
 
     # Set window size
-    root.geometry("400x600")
+    root.geometry("400x500")
 
     # Add title label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
@@ -377,16 +356,12 @@ def setup_gui():
 
     # Start button to trigger data logging
     start_button = tk.Button(root, text="Start", font=("Arial", 14),
-                             command=lambda: start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio))
+                             command=lambda: start_logging(start_button, threshold_entry, scope_selection))
     start_button.pack(pady=10)
 
     # Stop button to stop data logging
     stop_button = tk.Button(root, text="Stop", font=("Arial", 14), command=stop_logging)
     stop_button.pack(pady=10)
-
-    # Button to toggle console output
-    toggle_button = tk.Button(root, text="Disable Console Output", font=("Arial", 14),command=lambda: toggle_console_output(toggle_button))
-    toggle_button.pack(pady=10)
 
     # Exit button to close the GUI
     exit_button = tk.Button(root, text="Exit", font=("Arial", 14), command=lambda: exit_program(root))
@@ -408,6 +383,6 @@ def setup_gui():
 if __name__ == "__main__":
     setup_gui()
 
-# update 15.10.2024 13:15 PM
+# update 14.10.2024 19:13 PM
 # END
     
