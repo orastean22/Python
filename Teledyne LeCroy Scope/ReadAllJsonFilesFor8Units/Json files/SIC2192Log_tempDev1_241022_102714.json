@@ -1,0 +1,16 @@
+[
+  {
+    "ErrTimeTick": "2024-10-22 14:40:25.146",
+    "ErrorLines": [
+      {
+        "TimeChange": "14:40:15.147",
+        "TimeSpan to Error": "-00:00:09.9988091",
+        "Count": 20586,
+        "SicData[hex]": "422BFC04",
+        "Temperature": "55.11°C",
+        "Comment": "",
+        "SO": "Ok"
+      }
+    ]
+  }
+]
