@@ -4,6 +4,7 @@
 # -- Update on 22/10/2024
 # -- Author: AdrianO
 # -- Script Task: Read all P1 to P8 from CSV files(scope 1 + Scope 2) and count how many glitches (P1...P8) are found
+# -- Version 0.1 - Load CSV files from Scope 1 and 2 + count and display occurrences of P1...P8 in 'PARAMETR' column
 # -- Version 0.2 - read JSON files, check for SO errors, and highlight units with errors in red
 # -- pip install pandas colorama
 
@@ -110,7 +111,7 @@ def read_json_files(file_paths):
                 data = json.load(f)
 
                 # Correctly extract the JSON file name to identify Dev1, Dev2, etc.
-                file_name = os.path.basename(file_path)  # Example: "SIC2192Log_tempDev1_..."
+                file_name = os.path.basename(file_path)  # "SIC2192Log_tempDev1_..."
                 dev_id = file_name.split("temp")[1].split('_')[0]  # Extract "DevX" part (Dev1, Dev2, etc.)
 
                 # Match the extracted dev_id with the units
@@ -156,7 +157,7 @@ def main():
             # Step 4: Count occurrences of P1 to P8
             p_counts = count_p_parameters(df)
 
-            # Check if all counts are zero (i.e., no P1...P8 found)
+            # Check if all counts are zero (ex: no P1...P8 found)
             if all(count == 0 for count in p_counts.values()):
                 print(f"No glitches found in {file_name}")
             else:
