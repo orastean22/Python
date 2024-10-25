@@ -1,83 +1,61 @@
 # ----------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 16/10/2024
-# -- Update on 15/10/2024
+# -- Update on 25/10/2024 - not working yet with inspection elements
 # -- Author: AdrianO
 # -- Version 0.1 - display on GUI how many glitch were found on each scope - counter
 # -- Script Task: Remote control LabEvent oven for Burin IN 2 (set and read temperature and humidity)
 # -- Oven Brand: Votschtechnik
-# -- Oven Model: LabEvent T/210/70/5
-# -- Setting the IP: 10.30.11.30 - not working
+# -- Oven Model: LabEvent T/210/70/5     
+# -- Setting the IP: 192.168.122.50
 # -- Serial Interface ASCII; Address: 1: Baud rate: 9600; Modbus: TCP
-# -- pip install pymodbus requests pyvisa
+# -- weblink: http://192.168.122.50:443/webseason/entrypoint.html
 
-'''
-import socket
+import time
 
-# IP address and port of the oven
-OVEN_IP = '10.30.11.30'
-PORT = 5025  # port for SCPI commands
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
 
-# Create a socket connection to the oven
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((OVEN_IP, PORT))
+# Set the path to your Edge WebDriver
+webdriver_path = "C:/WebDrivers/msedgedriver.exe"  # Replace with your actual path
 
-# SCPI command to set the temperature
-scpi_command = f'SET:TEMP {85}\n'  # Temperature in degree
+# Create a Service object for the WebDriver
+service = Service(executable_path=webdriver_path)
 
-# Send the SCPI command to the oven
-sock.sendall(scpi_command.encode('utf-8'))
+# Create an instance of Edge WebDriver
+driver = webdriver.Edge(service=service)
 
-# Optionally, you can receive a response
-response = sock.recv(1024)
-print(f"Response: {response.decode('utf-8')}")
+# Open the oven web interface
+driver.get("http://192.168.122.50:443/webseason/entrypoint.html")
 
-# Close the connection
-sock.close()
+time.sleep(20)
+print("20 seconds later...")
 
-'''
-from pymodbus.client import ModbusTcpClient
+# Example of finding an input field and setting temperature
+element  = driver.find_element_by_id(By.ID,'username') 
+element.send_keys("bi2")
 
-# IP address and port of the oven controller
-OVEN_IP = '10.30.11.30'
-PORT = 502  # Standard Modbus port, check the manual
+pw_input = driver.find_element_by_id('pw') 
+pw_input.send_keys("bi2")
 
-# Modbus register for setting temperature (this must be provided by the manual)
-TEMPERATURE_REGISTER = 40001  # Example register, replace with actual
+set_button = driver.find_element_by_id('login-button')
+set_button.click()
 
-# Create a client connection
-client = ModbusTcpClient(OVEN_IP, port=PORT)
+# Example of finding an input field and setting temperature
+temp_input = driver.find_element_by_id('layout_1.normal-value-numpad-dialog.container_1.numberpad_1.wutinputfield_1.valueElement')  # Replace with actual input element ID
 
-# Function to set temperature (in °C)
-def set_temperature(temperature):
-    # Assuming the temperature value is an integer in degrees Celsius
-    client.write_register(TEMPERATURE_REGISTER, temperature)
-    print(f"Temperature set to {temperature}°C")
+temp_input.clear()
+temp_input.send_keys("85")  # Set temperature to 70°C
 
-# Set the desired temperature
-desired_temperature = 85  # Replace with the desired temperature
-set_temperature(desired_temperature)
+# Find and click the "Set" button
+set_button = driver.find_element_by_id('numpad-apply')  # Replace with actual button ID
+set_button.click()
 
-# Close the client connection
-client.close()
+set_button = driver.find_element_by_id('run-profile-button')  # Replace with actual button ID
+set_button.click()
 
+set_button = driver.find_element_by_id('confirm-okay')  # Replace with actual button ID
+set_button.click()
 
-# END
-# Update 17.10.2024 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Close the browser
+driver.quit()
