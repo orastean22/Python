@@ -45,7 +45,7 @@ def set_led_status(led, status):
 def connect_to_oscilloscope_1():
     try:
         # Open connection to the oscilloscope using its IP address (or alias)
-        scope_1 = rm.open_resource("TCPIP0::10.30.11.57::inst0::INSTR")
+        scope_1 = rm.open_resource("TCPIP0::10.30.11.31::inst0::INSTR")
 
         # Timeout 5 sec -> timeout for communication with the scope;
         scope_1.timeout = 2000  # Program will wait for a response from the oscilloscope before raising an error
