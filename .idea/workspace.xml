@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="32e2c625-a5cb-4215-87b7-72f693ee31c9" name="Changes" comment="20.05.2024 Add Quiz20.py" />
+    <list default="true" id="32e2c625-a5cb-4215-87b7-72f693ee31c9" name="Changes" comment="add 1st variant - test in progress">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +22,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "orastean22"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/orastean22/Python.git",
+    "accountId": "50714b66-a87f-4798-9756-e3e2b0ae4f1f"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -38,6 +52,7 @@
     "Python.Download_YouTube_Video.executor": "Run",
     "Python.Download_YouTube_video-FULL HD.executor": "Run",
     "Python.Download_YouTube_video-FULLHD.executor": "Run",
+    "Python.DuplicatePictureFinder V0.1.executor": "Run",
     "Python.Quiz20.executor": "Run",
     "Python.SSL certificate check.executor": "Run",
     "Python.aa.executor": "Run",
@@ -51,7 +66,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-09665e90c3a7-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.15026.15" />
+        <option value="bundled-python-sdk-d7ad00fb9fc3-c546a90a8094-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-242.23726.102" />
       </set>
     </attachedChunks>
   </component>
@@ -88,13 +103,22 @@
       <option name="project" value="LOCAL" />
       <updated>1716237846923</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="add 1st variant - test in progress">
+      <option name="closed" value="true" />
+      <created>1730658117244</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1730658117244</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add version V0.01 comment" />
     <MESSAGE value="add update and high resolution to download youtube videos" />
     <MESSAGE value="20.05.2024 Add Quiz20.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="20.05.2024 Add Quiz20.py" />
+    <MESSAGE value="add 1st variant - test in progress" />
+    <option name="LAST_COMMIT_MESSAGE" value="add 1st variant - test in progress" />
   </component>
 </project>
