@@ -34,7 +34,7 @@ def communicate_with_device(ip, port, command):
         print(f"Socket error: {e}")
         return None
 
-# Example usage
+# Main function
 if __name__ == "__main__":
     device_ip = "192.168.122.50"
     device_port = 7777
