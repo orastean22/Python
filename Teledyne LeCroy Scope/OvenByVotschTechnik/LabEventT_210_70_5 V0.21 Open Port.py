@@ -11,73 +11,54 @@
 # -- see pdf doc section 6.2.11 command list
 # -- Port 502 (JUMO diraTRON controller communication)
 
-# $01TEMP\n
-# $01TEMP\r\n
-# $01TEMP
 
 import socket
 import time
 from datetime import datetime
 
-def read_temperature(ip, port, command):
+def send_command(ip, port, command):
     try:
-        # Create a socket connection
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((ip, port))  # Connect to the oven
+            s.connect((ip, port))
             print(f"Connected to {ip}:{port}")
-            
-            # Send the command
-            s.sendall(command.encode('ascii'))  # Encode the command
-            print(f"Sent command: {command}")
-            
-            # Receive the response
-            response = s.recv(1024).decode('ascii').strip()  # Decode the response
-            print(f"Received: {response}")
+            s.sendall(command.encode('ascii'))
+            print(f"Sent: {command}")
+            response = s.recv(1024).decode('ascii').strip()
+            print(f"Response: {response}")
             return response
-    except socket.error as e:
-        print(f"Socket error: {e}")
+    except Exception as e:
+        print(f"Error: {e}")
         return None
 
 if __name__ == "__main__":
-    # Oven IP and port
-    oven_ip = "192.168.122.50"
-    oven_port = 502  # 502 for JUMO diraTRON
+    # SimServ IP and port
+    oven_ip = "127.0.0.1"
+    oven_port = 7777
 
-    # Initialization command (if required)
-    initialization_command = "10006 1\r"  # Example command: GET_LNAME
+    # Correct separator
+    separator = chr(182)  # ASCII code 182
+
+    # Initialization command with correct separator and Simpati ID
+    initialization_command = f"10006{separator}1\r\n"
     print("Sending initialization command...")
-    response = read_temperature(oven_ip, oven_port, initialization_command)
+    response = send_command(oven_ip, oven_port, initialization_command)
     print(f"Initialization Response: {response}")
 
-    # ASCII command to request temperature
-    temperature_command = "12002 1\r"  # Replace with the correct command format
+    # Command to read temperature
+    temperature_command = f"12002{separator}1\r\n"
 
     # Real-time read temperature with timestamp
     try:
         while True:
-            # Read temperature
-            temperature = read_temperature(oven_ip, oven_port, temperature_command)
-            
-            # Get the current timestamp
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
-            # Log timestamp and temperature
+            temperature = send_command(oven_ip, oven_port, temperature_command)
             if temperature:
                 print(f"{current_time} - Temperature: {temperature}")
             else:
                 print(f"{current_time} - Failed to read temperature.")
-            
-            # Wait for a few seconds before the next reading
             time.sleep(5)  # Adjust the interval as needed
     except KeyboardInterrupt:
         print("Real-time logging stopped.")
-
-
-
-
-
-
-
 
  
  
