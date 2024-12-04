@@ -13,76 +13,35 @@
 
 
 import socket
-import time
-from datetime import datetime
 
 def send_command(ip, port, command):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((ip, port))
             print(f"Connected to {ip}:{port}")
-            s.sendall(command.encode('ascii'))
+            s.sendall(command.encode('latin-1'))  # Use 'latin-1' encoding
             print(f"Sent: {command}")
-            response = s.recv(1024).decode('ascii').strip()
+            response = s.recv(1024).decode('latin-1').strip()  # Decode using 'latin-1'
             print(f"Response: {response}")
             return response
     except Exception as e:
         print(f"Error: {e}")
         return None
 
+
 if __name__ == "__main__":
-    # SimServ IP and port
     oven_ip = "127.0.0.1"
     oven_port = 7777
 
-    # Correct separator
+    # Separator
     separator = chr(182)  # ASCII code 182
 
-    # Initialization command with correct separator and Simpati ID
+    # Command with Simpati ID and separator
     initialization_command = f"10006{separator}1\r\n"
+
     print("Sending initialization command...")
     response = send_command(oven_ip, oven_port, initialization_command)
     print(f"Initialization Response: {response}")
-
-    # Command to read temperature
-    temperature_command = f"12002{separator}1\r\n"
-
-    # Real-time read temperature with timestamp
-    try:
-        while True:
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            temperature = send_command(oven_ip, oven_port, temperature_command)
-            if temperature:
-                print(f"{current_time} - Temperature: {temperature}")
-            else:
-                print(f"{current_time} - Failed to read temperature.")
-            time.sleep(5)  # Adjust the interval as needed
-    except KeyboardInterrupt:
-        print("Real-time logging stopped.")
-
- 
- 
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
