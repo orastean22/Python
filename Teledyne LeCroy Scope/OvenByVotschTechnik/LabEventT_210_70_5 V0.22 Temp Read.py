@@ -82,7 +82,8 @@ if __name__ == "__main__":
  # end 20:02 PM
  
  
- 
+"""
+ # this code is to check initialization response of the oven
 import socket
 import time
 from datetime import datetime
@@ -114,3 +115,5 @@ if __name__ == "__main__":
     print("Sending initialization command...")
     init_response = send_command(oven_ip, oven_port, initialization_command)
     print(f"Initialization Response: {init_response}")
+    
+"""
