@@ -1,21 +1,21 @@
-# ----------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------
 # -- Python Script File
-# -- Created on 16/10/2024
-# -- Update on 04/12/2024 - FINAL VERSION
+# -- Created on 16/10/2024;  Update on 04/12/2024 - First Version that read Temperature and display
 # -- Author: AdrianO
 # -- Version 0.2 - Read real-time temperature for oven based on socket via TCP/IP
-# -- Script Task: Remote control LabEvent oven for Burin IN 2 (set and read temperature and humidity)
+# -- Script Task: Remote control LabEvent oven for Burin IN 2 (set and read temperature + humidity)
 # -- Oven Brand: Votschtechnik
 # -- Oven Model: LabEvent T/210/70/5
-# -- Setting the IP: 192.168.122.50
-# -- see pdf doc section 6.2.11 command list
-# -- Port 502 (JUMO diraTRON controller communication)
+# -- IP: 192.168.122.50
+# -- See pdf doc section 6.2.11 command list
+# -- Port 7777 or 502 (JUMO diraTRON controller communication) for communication
 
 import socket
 import time
 from datetime import datetime
 import csv
 
+# 
 def send_command(ip, port, command):
     """Send a command to the oven and receive a response."""
     try:
