@@ -1,17 +1,21 @@
-# ----------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 08/10/2024
-# -- Update on 21/10/2024 - not done yet
+# -- Update on 06/12/2024 - ONGOING
 # -- Author: AdrianO
-# -- Version 0.8 - Add timer - how long should this process run + radio button to activate this
-# --             - add on GUI the 8 units with top and bottom channels + add how many glitches have each channels.
-# -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
+# -- Version 0.8 - Add time and data on GUI to see when app started
+# --             - auto start app button after 5 sec if the user do not start the app
+# --             - put humidity on 0.0
 # -- pip install pyvisa
+# ------------------------------------------------------------------------------------------------------------------
 
+import socket
 import time
 import csv
 import os
 import threading
+import subprocess
+import psutil
 import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox
@@ -46,7 +50,7 @@ def set_led_status(led, status):
 def connect_to_oscilloscope_1():
     try:
         # Open connection to the oscilloscope using its IP address (or alias)
-        scope_1 = rm.open_resource("TCPIP0::10.30.11.57::inst0::INSTR")
+        scope_1 = rm.open_resource("TCPIP0::10.30.11.31::inst0::INSTR")
 
         # Timeout 5 sec -> timeout for communication with the scope;
         scope_1.timeout = 2000  # Program will wait for a response from the oscilloscope before raising an error
@@ -68,6 +72,38 @@ def connect_to_oscilloscope_2():
     except Exception as e:
         print(f"Failed to connect to oscilloscope_2: {e}")
         return None
+
+def is_process_running(process_name):
+    for proc in psutil.process_iter(['name']):
+        if proc.info['name'] and process_name.lower() in proc.info['name'].lower():
+            return True
+    return False
+
+def run_simserv_commands(path, port):
+    simserv_exe = os.path.join(path, "simserv.exe")
+    
+    if not os.path.exists(simserv_exe):
+        print(f"{simserv_exe} not found!")
+        return
+
+    if is_process_running("simserv.exe"):
+        print("simserv.exe is already running. Skipping...")
+        return
+    
+    try:
+        simserv_process = subprocess.Popen([simserv_exe, "-D", f"-P{port}", "-start"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print("SimServ server started...")
+        simserv_stdout, simserv_stderr = simserv_process.communicate(timeout=5)
+        if simserv_stderr:
+            print(f"SimServ error: {simserv_stderr}")
+            return
+        print(f"SimServ output: {simserv_stdout}")
+    except subprocess.TimeoutExpired:
+        print("A process took too long to respond.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        print("SimServ operations completed.")
 
 # Function to read measurements from the scopes (P1 to P8)
 def read_all_measurements_vbs_scope(scope, scope_name):
@@ -128,6 +164,37 @@ def toggle_console_output(toggle_button):
     else:
         toggle_button.config(text="Enable Console Output")
 
+# Send a command to the oven and receive a response.
+def send_command(ip, port, command):   
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.connect((ip, port))
+            #print(f"Connected to {ip}:{port}")
+            s.sendall(command.encode('latin-1'))  # Use 'latin-1' encoding for extended ASCII
+            response = s.recv(1024)
+            clean_response = response.decode('latin-1').strip()  # Strip unwanted characters
+            #print(f"Response: {clean_response}")
+            return clean_response
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+
+def send_command_oven():
+    oven_ip = "127.0.0.1"  
+    oven_port = 7777  
+    separator = chr(182)
+    
+    temperature_command = f"11004{separator}1{separator}1\r\n" 
+    temp_response = send_command(oven_ip, oven_port, temperature_command)
+    cleaned_response = temp_response[2:].strip()
+    
+    """# Log the result
+    if temp_response:
+        print(f"Temperature: {temp_response}")
+    else:
+        print(f"Failed to fetch temperature.")"""
+    
+    return cleaned_response
 
 # Thread function to log data from Scope 1
 def log_data_scope_1():
@@ -155,7 +222,7 @@ def log_data_scope_1():
 
                 # Add additional raw data (Ex: ....ANY FLAG, FAULT A FLAG, FAULT B FLAG, TEMPERATURE, HUMIDITY)
                 any_flag = fault_a_flag = fault_b_flag = 0
-                temperature = 25.0
+                temperature = send_command_oven()
                 humidity = 45.0
 
                 # Read all measurements from Scope 1 (P1 to P8 in one shot)
@@ -215,8 +282,8 @@ def log_data_scope_2():
 
                 # Add additional raw data (Ex: ....ANY FLAG, FAULT A FLAG, FAULT B FLAG, TEMPERATURE, HUMIDITY)
                 any_flag = fault_a_flag = fault_b_flag = 0
-                temperature = 25.0
-                humidity = 45.0
+                temperature = send_command_oven()
+                humidity = 0.0
 
                 # Read all measurements from Scope 2 (P1 to P8 in one shot)
                 measurement_scope_2 = read_all_measurements_vbs_scope(scope_2, "Scope_2_TOP_CH")
@@ -248,9 +315,13 @@ def log_data_scope_2():
                 scope_2.close()  # Safely close the session
             except Exception as e:
                 print(f"Error closing scope_2: {e}")
-            # time.sleep(0.1)  # Delay between readings for updates every 100 milliseconds (10 times per second)
             # time.sleep(0.01)  # Read every 10ms (100 times per second)
-
+ 
+def display_start_time(root):
+    start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    start_time_label = tk.Label(root, text=f"App Start Time: {start_time}", font=("Arial", 10), anchor="e")
+    start_time_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-30)  # Adjust x and y to position it
+    return start_time
 
 # Function to start data acquisition for one or both scopes in separate threads
 def start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio):
@@ -293,7 +364,6 @@ def stop_logging():
         messagebox.showinfo("Information", "Data logging is not running.")
 
 
-
 # Function to exit the program
 def exit_program(root):
     global rm
@@ -316,12 +386,15 @@ def setup_gui():
     glitch_count_scope_2 = 0
     
     # Set window size
-    root.geometry("450x640")
+    root.geometry("500x680")
 
     # Add title label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
     label.pack(pady=20)
 
+    # Add the app start time label
+    display_start_time(root)  # Call the timer function here
+    
     # Threshold input field with label
     threshold_label = tk.Label(root, text="Threshold (µs):", font=("Arial", 12))
     threshold_label.pack()
@@ -380,13 +453,17 @@ def setup_gui():
     # Display Version on GUI
     version_label = tk.Label(root, text="V0.8 by AdrianO", font=("Arial", 10), anchor="se")
     version_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)  # Position bottom-right
+    
+    # Automatically trigger the Start button after 5 seconds
+    root.after(5000, lambda: start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio))
 
     root.mainloop()
 
 # Main function to set up GUI
 if __name__ == "__main__":
+    run_simserv_commands("C:\\Simpati 4.80\\System", 7777)
     setup_gui()
-
-# update 21.10.2024 12:18 
+    
+# update 06.12.2024
 # END
     
