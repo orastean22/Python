@@ -2,7 +2,7 @@
 # -- Python Script File
 # -- Created on 08/10/2024
 # -- Author: AdrianO
-# -- Version 0.2 - read all P1-P8 function for all 8 Channels on both scopes
+# -- Version 0.11 - read all P1-P8 function for all 8 Channels on both scopes
 # -- Script Task: initiate scope for Burn IN 2 + read programs P1-P8 + create an CSV file
 # -- pip install pyvisa
 

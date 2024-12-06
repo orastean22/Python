@@ -2,7 +2,7 @@
 # -- Python Script File
 # -- Created on 08/10/2024
 # -- Author: AdrianO
-# -- Version 0.4 - read all P1-P8 function on all 8 Channels on both scopes + create CSV file + GUI include Start and
+# -- Version 0.13 - read all P1-P8 function on all 8 Channels on both scopes + create CSV file + GUI include Start and
 # Stop button for recording all events in CSV file + create 2 Threads (one for each scope) to read and log data in real
 # time as possible. Add also two separate CSV files—one for each thread would simplify the process of real-time logging.
 # Add also 0 in CSV file in case that one or more measurement points like P1...P8 do not nave value (no switching unit)

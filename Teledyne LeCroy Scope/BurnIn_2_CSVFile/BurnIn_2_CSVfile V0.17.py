@@ -1,13 +1,11 @@
-# ------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 08/10/2024
-# -- Update on 06/12/2024 - ONGOING
+# -- Update on 06/12/2024
 # -- Author: AdrianO
-# -- Version 0.8 - Add time and data on GUI to see when app started
-# --             - auto start app button after 5 sec if the user do not start the app
-# --             - put humidity on 0.0
+# -- Version 0.17 - add also the temperature from oven in csv file
+# -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
 # -- pip install pyvisa
-# ------------------------------------------------------------------------------------------------------------------
 
 import socket
 import time
@@ -283,7 +281,7 @@ def log_data_scope_2():
                 # Add additional raw data (Ex: ....ANY FLAG, FAULT A FLAG, FAULT B FLAG, TEMPERATURE, HUMIDITY)
                 any_flag = fault_a_flag = fault_b_flag = 0
                 temperature = send_command_oven()
-                humidity = 0.0
+                humidity = 45.0
 
                 # Read all measurements from Scope 2 (P1 to P8 in one shot)
                 measurement_scope_2 = read_all_measurements_vbs_scope(scope_2, "Scope_2_TOP_CH")
@@ -315,13 +313,9 @@ def log_data_scope_2():
                 scope_2.close()  # Safely close the session
             except Exception as e:
                 print(f"Error closing scope_2: {e}")
+            # time.sleep(0.1)  # Delay between readings for updates every 100 milliseconds (10 times per second)
             # time.sleep(0.01)  # Read every 10ms (100 times per second)
- 
-def display_start_time(root):
-    start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    start_time_label = tk.Label(root, text=f"App Start Time: {start_time}", font=("Arial", 10), anchor="e")
-    start_time_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-30)  # Adjust x and y to position it
-    return start_time
+
 
 # Function to start data acquisition for one or both scopes in separate threads
 def start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio):
@@ -386,15 +380,12 @@ def setup_gui():
     glitch_count_scope_2 = 0
     
     # Set window size
-    root.geometry("500x680")
+    root.geometry("450x640")
 
     # Add title label on GUI
     label = tk.Label(root, text="Burin In 2 Monitoring", font=("Arial", 18, "bold"))
     label.pack(pady=20)
 
-    # Add the app start time label
-    display_start_time(root)  # Call the timer function here
-    
     # Threshold input field with label
     threshold_label = tk.Label(root, text="Threshold (µs):", font=("Arial", 12))
     threshold_label.pack()
@@ -451,11 +442,8 @@ def setup_gui():
     detected_glitch_label_2.pack(pady=10)
     
     # Display Version on GUI
-    version_label = tk.Label(root, text="V0.8 by AdrianO", font=("Arial", 10), anchor="se")
+    version_label = tk.Label(root, text="V0.71 by AdrianO", font=("Arial", 10), anchor="se")
     version_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)  # Position bottom-right
-    
-    # Automatically trigger the Start button after 5 seconds
-    root.after(5000, lambda: start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio))
 
     root.mainloop()
 

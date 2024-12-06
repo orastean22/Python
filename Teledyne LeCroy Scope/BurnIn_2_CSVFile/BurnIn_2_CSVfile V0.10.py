@@ -2,7 +2,7 @@
 # -- Python Script File
 # -- Created on 08/10/2024
 # -- Author: AdrianO
-# -- Version 0.1 - read only P1 function
+# -- Version 0.10 - read only P1 function
 # -- Script Task: initiate scope for Burn IN 2 + read programs P1-P8 + create an CSV file
 # -- pip install pyvisa
 
