@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------------------
 # -- Python Script File
 # -- Created on 08/10/2024
-# -- Update on 15/10/2024
+# -- Update on 06/12/2024
 # -- Author: AdrianO
 # -- Version 0.71 - add also the temperature from oven in csv file
 # -- Script Task: Initialize scope for Burn IN 2 + read programs P1-P8 + create an CSV file.
@@ -12,6 +12,8 @@ import time
 import csv
 import os
 import threading
+import subprocess
+import psutil
 import tkinter as tk
 from datetime import datetime
 from tkinter import messagebox
@@ -68,6 +70,38 @@ def connect_to_oscilloscope_2():
     except Exception as e:
         print(f"Failed to connect to oscilloscope_2: {e}")
         return None
+
+def is_process_running(process_name):
+    for proc in psutil.process_iter(['name']):
+        if proc.info['name'] and process_name.lower() in proc.info['name'].lower():
+            return True
+    return False
+
+def run_simserv_commands(path, port):
+    simserv_exe = os.path.join(path, "simserv.exe")
+    
+    if not os.path.exists(simserv_exe):
+        print(f"{simserv_exe} not found!")
+        return
+
+    if is_process_running("simserv.exe"):
+        print("simserv.exe is already running. Skipping...")
+        return
+    
+    try:
+        simserv_process = subprocess.Popen([simserv_exe, "-D", f"-P{port}", "-start"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        print("SimServ server started...")
+        simserv_stdout, simserv_stderr = simserv_process.communicate(timeout=5)
+        if simserv_stderr:
+            print(f"SimServ error: {simserv_stderr}")
+            return
+        print(f"SimServ output: {simserv_stdout}")
+    except subprocess.TimeoutExpired:
+        print("A process took too long to respond.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        print("SimServ operations completed.")
 
 # Function to read measurements from the scopes (P1 to P8)
 def read_all_measurements_vbs_scope(scope, scope_name):
@@ -133,7 +167,7 @@ def send_command(ip, port, command):
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((ip, port))
-            print(f"Connected to {ip}:{port}")
+            #print(f"Connected to {ip}:{port}")
             s.sendall(command.encode('latin-1'))  # Use 'latin-1' encoding for extended ASCII
             response = s.recv(1024)
             clean_response = response.decode('latin-1').strip()  # Strip unwanted characters
@@ -324,7 +358,6 @@ def stop_logging():
         messagebox.showinfo("Information", "Data logging is not running.")
 
 
-
 # Function to exit the program
 def exit_program(root):
     global rm
@@ -416,8 +449,9 @@ def setup_gui():
 
 # Main function to set up GUI
 if __name__ == "__main__":
+    run_simserv_commands("C:\\Simpati 4.80\\System", 7777)
     setup_gui()
-
-# update 15.10.2024 18:00 PM
+    
+# update 06.12.2024
 # END
     
