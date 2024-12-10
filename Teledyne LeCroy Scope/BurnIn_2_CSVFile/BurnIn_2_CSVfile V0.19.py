@@ -3,9 +3,9 @@
 # -- Created on 08/10/2024
 # -- Update on 06/12/2024 - ONGOING
 # -- Author: AdrianO
-# -- Version 0.18 - Add time and data on GUI to see when app started
-# --             - auto start app button after 5 sec if the user do not start the app
-# --             - put humidity on 0.0
+# -- Version 0.19 - Log in CSV file all P measurements +  temperature for oven
+# --              - Auto start app button after 10 sec if the user do not start the app
+# --              - Put Threshold detection by default on 33
 # -- pip install pyvisa
 # ------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ glitch_count_scope_1 = 0
 glitch_count_scope_2 = 0
 
 # Variable that holds threshold value, default is 40.0 µs as pulse width
-threshold_value = 40.0
+threshold_value = 33
 
 # Function to change LED status (green if the scopes are connected and reading values P1-P8)
 def set_led_status(led, status):
@@ -231,7 +231,7 @@ def log_data_scope_1():
                 # Log all measurements to CSV file only when below threshold
                 for i, measurement in enumerate(measurement_scope_1, start=1):
                     if measurement != previous_measurements[i-1]:  # check if the value has changed
-                        if measurement > 0 and measurement < threshold_value:  # Log values below threshold only
+                        if measurement < threshold_value:  # Log values below threshold only
                             parameter = f"P{i}"
                             
                             # Increment glitch count for Scope 1 and update label
@@ -291,7 +291,7 @@ def log_data_scope_2():
                 # Log all measurements to CSV file only when below threshold
                 for i, measurement in enumerate(measurement_scope_2, start=1):
                     if measurement != previous_measurements[i - 1]:  # check if the value was change
-                        if measurement > 0 and measurement < threshold_value:  # Log values below threshold only
+                        if measurement < threshold_value:  # Log values below threshold only
                             parameter = f"P{i}"
                             
                             # Increment glitch count for Scope 1 and update label
@@ -399,7 +399,7 @@ def setup_gui():
     threshold_label = tk.Label(root, text="Threshold (µs):", font=("Arial", 12))
     threshold_label.pack()
     threshold_entry = tk.Entry(root, font=("Arial", 12))
-    threshold_entry.insert(0, "40.0")  # Default threshold value
+    threshold_entry.insert(0, "33.0")  # Default threshold value
     threshold_entry.pack(pady=5)
     
     # Scope selection label
@@ -451,11 +451,11 @@ def setup_gui():
     detected_glitch_label_2.pack(pady=10)
     
     # Display Version on GUI
-    version_label = tk.Label(root, text="V0.18 by AdrianO", font=("Arial", 10), anchor="se")
+    version_label = tk.Label(root, text="V0.19 by AdrianO", font=("Arial", 10), anchor="se")
     version_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)  # Position bottom-right
     
-    # Automatically trigger the Start button after 5 seconds
-    root.after(5000, lambda: start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio))
+    # Automatically trigger the Start button after 10 seconds
+    root.after(10000, lambda: start_logging(start_button, threshold_entry, scope_selection, scope_1_radio, scope_2_radio))
 
     root.mainloop()
 
