@@ -7,7 +7,7 @@
 # -- Version 0.1 - check and count SO and bit stream errors + display them
 # -- pip install pandas colorama
 # -- clear terminal for WIN (os.system('cls')) and for MacOS/Linux (os.system('clear'))
-
+# ----------------------------------------------------------------------------------------------
 import pandas as pd
 from tkinter import Tk, filedialog
 import os  # Import os for file path handling
@@ -21,7 +21,7 @@ from datetime import datetime
 # Initialize colorama for colored text output
 init(autoreset=True)
 
-# Maps for units and their corresponding JSON files (e.g., Dev1 and Dev2 for Unit 1)
+# Maps for units and their corresponding JSON files (ex: Dev1 and Dev2 for Unit 1....)
 unit_json_mapping = {
     "Unit1": ["Dev1", "Dev2"],
     "Unit2": ["Dev3", "Dev4"],
@@ -112,10 +112,6 @@ def read_json_files(file_paths):
 # Returns a formatted string in "YYYY-MM-DD HH:MM:SS" format.
 # ********************************************************************************** 
 def format_full_time(date_str, time_str):
-    """
-    Combines date and time strings into a full datetime format.
-    Returns a formatted string in "YYYY-MM-DD HH:MM:SS" format.
-    """
     try:
         # Combine the date (YYYY-MM-DD) and time (HH:MM:SS) with milliseconds
         full_datetime_str = f"{date_str} {time_str}"
@@ -124,7 +120,6 @@ def format_full_time(date_str, time_str):
     except ValueError:
         # If there's an error in parsing, return the original time string
         return full_datetime_str
-
 
 # **********************************************************************************
 # Extracts only the date part from the 'ErrTimeTick' field.
