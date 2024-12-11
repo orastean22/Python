@@ -10,10 +10,17 @@
 import tkinter as tk
 from tkinter import font
 
+# **********************************************************************************
+# Count down function
+# **********************************************************************************
+
 def start_countdown():
     def countdown(count):
         if count >= 0:
-            countdown_label.config(text=str(count), fg="red")
+            hours, remainder = divmod(count, 3600)
+            mins, secs = divmod(remainder, 60)
+            time_format = f"{hours:02}:{mins:02}:{secs:02}"
+            countdown_label.config(text=time_format, fg="red")
             root.after(1000, countdown, count - 1)
         else:
             countdown_label.config(text="Time's Up!", fg="red")
@@ -27,7 +34,7 @@ root.geometry("400x300")
 
 # Set up the input and label
 time_var = tk.IntVar()
-time_var.set(10)  # Default countdown time in seconds
+time_var.set(4200)  # Default countdown time in seconds (1 hour and 10 minutes)
 
 input_label = tk.Label(root, text="Enter countdown time (seconds):", font=("Arial", 12))
 input_label.pack(pady=10)
