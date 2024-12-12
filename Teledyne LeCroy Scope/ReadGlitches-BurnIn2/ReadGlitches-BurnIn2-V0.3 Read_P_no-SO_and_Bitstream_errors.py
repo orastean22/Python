@@ -4,6 +4,8 @@
 # -- Update on 22/10/2024  - not working yet - error in bitstream read
 # -- Author: AdrianO
 # -- Script Task: Read all P1 to P8 from CSV files(scope 1 + Scope 2) and count how many glitches (P1...P8) are found
+# -- Version 0.1 - Load CSV files from Scope 1 and 2 + count and display occurrences of P1...P8 in 'PARAMETR' column
+# -- Version 0.2 - read JSON files, check for SO errors, and highlight units with errors in red
 # -- Version 0.3 - Read P no, SO errors and Bit stream errors + highlighted in red, excluding CRC_b21 for bit stream.
 # -- pip install pandas colorama
 
