@@ -13,7 +13,6 @@ from tkinter import font
 # **********************************************************************************
 # Count down function
 # **********************************************************************************
-
 def start_countdown():
     def countdown(count):
         if count >= 0:
@@ -25,7 +24,11 @@ def start_countdown():
         else:
             countdown_label.config(text="Time's Up!", fg="red")
 
+    # Disable the start button
+    start_button.config(state=tk.DISABLED)
+    # Start the countdown
     countdown(time_var.get())
+
 
 # Create the main window
 root = tk.Tk()
