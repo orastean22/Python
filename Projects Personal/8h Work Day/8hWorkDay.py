@@ -2,7 +2,7 @@
 # Version V0.1
 # Data: 27.08.2024
 # to run the app go in Terminal cd /path/to/directory
-# run the script: python3 8hWorkDay.py.py
+# run the script: python3 8hWorkDay.py
 # install 2 packages with below commands in terminal:
 # pip install plyer
 # pip install notification
@@ -21,7 +21,6 @@ def show_popup():
     root.withdraw()  # Hide the main window
     tk.messagebox.showinfo("Workday Over!", "It's time to go home!")
     root.destroy()
-
 
 def notify_desktop():
     try:
@@ -51,4 +50,4 @@ def countdown_timer():
 if __name__ == "__main__":
     countdown_timer()
 
-
+#END  
