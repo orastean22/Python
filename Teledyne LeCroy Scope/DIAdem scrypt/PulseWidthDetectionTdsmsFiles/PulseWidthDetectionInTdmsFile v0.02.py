@@ -5,8 +5,7 @@
 # -- Comment: Calculate Pulse Width for signal A and signal B
 # --------------------------------------------------------------------
 
-""" declare the encoding of the file. It indicates that the file is encoded using UTF-8"""
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-     declare the encoding of the file. It indicates that the file is encoded using UTF-8
 from nptdms import TdmsFile
 from matplotlib import pyplot as plt
 from collections import Counter
@@ -102,7 +101,7 @@ tdms_file_path = browse_tdms_file()
 #file_path = r"\\pictshare01\04_Ops\05_Engineering\05_TestEngineering\02_BoardTest\01_TSLH\01_Framework\TestStrategys\2SP0215F2Q\BurnIN\Documentation\DIAdem files glitch detection criteria\TDMS\Glitch3.tdms"
 
 group_name = "DUT Data"
-channel_names = ["DUT1_Gate_A_Signal", "DUT1_Gate_B_Signal"]
+channel_names = ["DUT7_Gate_A_Signal", "DUT7_Gate_B_Signal"]
 threshold = 5
 
 pulse_times, pulse_widths = read_tdms_file(tdms_file_path, group_name, channel_names, threshold)
@@ -126,3 +125,6 @@ for channel_name in channel_names:
     else:
         print("No glitches detected.")
     print("\n")
+
+
+# END 20.01.2025
