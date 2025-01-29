@@ -3,9 +3,8 @@
 # -- Created on 08/10/2024
 # -- Update on 06/12/2024 - ONGOING
 # -- Author: AdrianO
-# -- Version 0.19 - Log in CSV file all P measurements +  temperature for oven
-# --              - Auto start app button after 10 sec if the user do not start the app
-# --              - Put Threshold detection by default on 33
+# -- Version 0.21 - Put the scope in auto and then in Normal mode - like an initialization 
+# --              - Add communication with Oven server + send commands for read temperature via TCP-IP 
 # -- pip install pyvisa
 # ------------------------------------------------------------------------------------------------------------------
 
