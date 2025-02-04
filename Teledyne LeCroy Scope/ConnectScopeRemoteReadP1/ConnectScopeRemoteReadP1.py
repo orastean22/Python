@@ -11,13 +11,9 @@ from contextlib import contextmanager
 import csv
 from datetime import datetime
 
-
-# Configuration - Consider moving to separate config file
+# Configuration
 SCOPE_ADDRESS = "TCPIP0::10.30.11.37::inst0::INSTR"
 TIMEOUT = 10000  # Increased timeout to 10 seconds
-
-# Should match the IP you're pinging successfully:
-SCOPE_ADDRESS = "TCPIP0::10.30.11.37::inst0::INSTR"  # Use the actual pingable IP
 
 # Context manager for proper resource cleanup
 @contextmanager
