@@ -5,7 +5,6 @@
 # -- Update on 
 # -- Author: AdrianO
 # -- Version 0.1 - Digital Clock on GUI
-
 # ----------------------------------------------------------------------------------------------
 
 import tkinter as tk
@@ -27,4 +26,4 @@ def update_time():
 update_time()
 root.mainloop()
 
-#END 08.01.2024
+#END 08.01.2025
