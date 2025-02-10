@@ -8,6 +8,10 @@
 # -- Comment Vers 1.3: add also SO read out from all Json files and display on temperature graphic + add channels
 # -- Comment Vers 1.31: limit errors display legend at max 10 errors.
 # -- Comment Vers 1.32 Add legend in lower side left corner to see all errors on temp profile
+# -- Instruction how the script works:
+#          load cvs file for x that you know that is fail
+#          load txt file with the units serial no
+#          in the folder you should have the 8x DUT X .csv files, Serial no .txt and 16 JSOn files.
 # -- pip install pandas
 # ----------------------------------------------------------------------------------------------------------------------
 
