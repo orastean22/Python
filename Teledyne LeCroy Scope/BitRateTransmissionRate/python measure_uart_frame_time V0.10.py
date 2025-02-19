@@ -83,4 +83,11 @@ if __name__ == "__main__":   # Ensures that the script runs only if executed dir
     finally:
         scope.close()   # Ensures the connection to the oscilloscope is properly closed when the script stops.
 
+
+#Measurement setup completed.
+#Logged: 2025-02-19 14:30:15 | Frame Interval: 615.23 µs
+#Logged: 2025-02-19 14:30:16 | Frame Interval: 614.89 µs
+#⚠ Warning: Frame transmission time out of range! (587.45 µs)
+#Logged: 2025-02-19 14:30:17 | Frame Interval: 630.10 µs
+
 # END 19.02.2025
