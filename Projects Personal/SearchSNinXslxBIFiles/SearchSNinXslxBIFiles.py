@@ -11,7 +11,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 # Hardcoded serial number to search for
-SEARCH_SERIAL_NUMBER = "H2444000EJ"
+SEARCH_SERIAL_NUMBER = "H243200067"
 
 # Step 1: Select the folder where we have all xlsx files containing BI results
 def search_serial_in_xlsx(folder_path, search_serial_number):
@@ -47,13 +47,15 @@ if not folder_path:
     print("No folder selected. Exiting...")
     exit()
 
-# Perform the search
+# Call search function and perform the search
 found_files = search_serial_in_xlsx(folder_path, SEARCH_SERIAL_NUMBER)
 
-# Print results
+# Print results on terminal
 if found_files:
     print("\nSerial number found in the following files:")
     for file in found_files:
         print(file)
 else:
     print("\nSerial number not found in any files.")
+
+# END 24.02.2025
