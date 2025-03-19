@@ -8,28 +8,27 @@
 # ------------------------------------------------------------------------------------------------------------------
 
 import pyvisa
-import time
 
-def read_uart_bitrate(scope_ip, decode=1, row=1):
+def read_uart_bitrate(decode=1, row=1):
     try:
         rm = pyvisa.ResourceManager()
-        scope = rm.open_resource(f'TCPIP0::{scope_ip}::inst0::INSTR')
+        scope = rm.open_resource(f'TCPIP0::10.0.0.2::inst0::INSTR')
         scope.timeout = 5000  # timeout 5s
 
-        # Proper VBS query (use query() to write and read)
-        vbs_query = f"VBS? 'Return=app.SerialDecode.Decode{decode}.Out.Result.CellValue({row},4)'"
+        # Read bitrate from the scope (Column 6)
+        vbs_query = f"VBS? 'Return=app.SerialDecode.Decode{decode}.Out.Result.CellValue({row}, 6)'"
 
-        # Use query to directly obtain the response
+        # Print the VBS command
+        print(f"VBS command sent: {vbs_query}")
+
+        # Get response from scope
         response = scope.query(vbs_query).strip()
 
-        # Check raw response
-        print(f"Raw response from scope: '{response}'")
-
-        # Remove "VBS" prefix and quotes, parse to float
-        if response.startswith("VBS '") and response.endswith("'"):
-            bitrate_str = response[5:-1].replace("kbit/s", "").strip()
-            bitrate_value = float(bitrate_str)
-            print(f"UART Decode {decode}, Row {row} Bitrate: {bitrate_value} kbit/s")
+        # Remove the 'VBS ' prefix to isolate numeric value
+        if response.startswith("VBS "):
+            bitrate_str = response[4:].strip(" '\n\r")
+            bitrate_value = float(bitrate_str) / 1000  # Convert from bit/s to kbit/s
+            print(f"UART Decode {decode}, Row {row} Bitrate: {bitrate_value:.3f} kbit/s")
         else:
             raise ValueError(f"Unexpected response format: '{response}'")
 
@@ -40,13 +39,8 @@ def read_uart_bitrate(scope_ip, decode=1, row=1):
         print("Error reading bitrate:", e)
         return None
 
-
 # Main execution
 if __name__ == "__main__":
-    scope_ip = '10.0.0.2'
-    bitrate = read_uart_bitrate(scope_ip, decode=1, row=1)
+    bitrate = read_uart_bitrate(decode=1, row=1)
     print("Measured Bitrate:", bitrate)
-
-
-
-
+    print("End of script")
