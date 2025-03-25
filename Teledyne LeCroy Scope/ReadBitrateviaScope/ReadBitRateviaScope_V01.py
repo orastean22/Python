@@ -15,18 +15,18 @@ def read_uart_bitrate(decode=1, row=1):
         scope = rm.open_resource(f'TCPIP0::10.0.0.2::inst0::INSTR')
         scope.timeout = 5000  # timeout 5s
 
-        # Read bitrate from the scope (Column 6)
+        # Read bitrate from the scope (Column 6) - command in VBS - Visual Basic Script
         vbs_query = f"VBS? 'Return=app.SerialDecode.Decode{decode}.Out.Result.CellValue({row}, 6)'"
 
-        # Print the VBS command
+        # Print the VBS command on terminal
         print(f"VBS command sent: {vbs_query}")
 
-        # Get response from scope
+        # Get response from scope - read value from the table pos 6
         response = scope.query(vbs_query).strip()
 
         # Remove the 'VBS ' prefix to isolate numeric value
         if response.startswith("VBS "):
-            bitrate_str = response[4:].strip(" '\n\r")
+            bitrate_str = response[4:].strip(" '\n\r") # Remove 'VBS ' prefix and any whitespace
             bitrate_value = float(bitrate_str) / 1000  # Convert from bit/s to kbit/s
             print(f"UART Decode {decode}, Row {row} Bitrate: {bitrate_value:.3f} kbit/s")
         else:
