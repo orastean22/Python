@@ -1,0 +1,66 @@
+[
+  {
+    "ErrTimeTick": "2025-04-17 12:30:36.537",
+    "ErrorLines": [
+      {
+        "TimeChange": "12:30:26.538",
+        "TimeSpan to Error": "-00:00:09.9989423",
+        "Count": 21083,
+        "SicData[hex]": "4003F804",
+        "Temperature": "\u00b0C",
+        "Comment": "",
+        "SO": "Ok"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2025-04-08 14:20:35.543",
+    "ErrorLines": [
+      {
+        "TimeChange": "14:20:25.544",
+        "TimeSpan to Error": "-00:00:09.9991260",
+        "Count": 17325,
+        "SicData[hex]": "44E3F804",
+        "Temperature": "82.88\u00b0C",
+        "Comment": "",
+        "SO": "Error"
+      },
+      {
+        "TimeChange": "14:20:35.543",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 1,
+        "SicData[hex]": "44E9FC04",
+        "Temperature": "83.11\u00b0C",
+        "Comment": "CRC_b21",
+        "SO": "Error"
+      },
+      {
+        "TimeChange": "14:20:35.547",
+        "TimeSpan to Error": "00:00:00.0038492",
+        "Count": 95,
+        "SicData[hex]": "44EBFC04",
+        "Temperature": "83.11\u00b0C",
+        "Comment": "",
+        "SO": "Error"
+      },
+      {
+        "TimeChange": "14:20:35.598",
+        "TimeSpan to Error": "00:00:00.0550875",
+        "Count": 1,
+        "SicData[hex]": "44E9FC04",
+        "Temperature": "85.11\u00b0C",
+        "Comment": "CRC_b21",
+        "SO": "Error"
+      },
+      {
+        "TimeChange": "14:20:35.599",
+        "TimeSpan to Error": "00:00:00.0562659",
+        "Count": 3465,
+        "SicData[hex]": "44EBFC04",
+        "Temperature": "86.11\u00b0C",
+        "Comment": "",
+        "SO": "Error"
+      }
+    ]
+  }
+]
