@@ -6,7 +6,6 @@
 #-- Script Task:  Log in JSON file all the errors from Bitstream
 #-- Comment Vers 0.1: Generate JSON file structure for errors
 #-- Comment Vers 0.2: Dynamic generation of error events based on input parameters
-#-- pip install pandas
 #----------------------------------------------------------------------------------------------------------------------
 
 import json
@@ -95,11 +94,11 @@ def example():
 #----------------------------------------------------------------------------------------------------------------------
     # Error case with multiple error lines
     error_lines = [
-        create_error_line("14:25:25.544", "-00:00:09.9991260", 17325, "44E3F804", "82.88°C", "", "Error"),
-        create_error_line("14:25:35.543", "00:00:00", 1, "44E9FC04", "83.11°C", "CRC_b21", "Error"),
-        create_error_line("14:25:35.547", "00:00:00.0038492", 95, "44EBFC04", "83.11°C", "", "Error"),
-        create_error_line("14:25:35.598", "00:00:00.0550875", 1, "44E9FC04", "85.11°C", "CRC_b21", "Error"),
-        create_error_line("14:25:35.599", "00:00:00.0562659", 3465, "44EBFC04", "86.11°C", "", "Error")
+        create_error_line("14:25:25.544", "-00:00:09.9991260", 17325, "44E3F804", "82.88C", "", "Error"),
+        create_error_line("14:25:35.543", "00:00:00", 1, "44E9FC04", "83.11C", "CRC_b21", "Error"),
+        create_error_line("14:25:35.547", "00:00:00.0038492", 95, "44EBFC04", "83.11C", "", "Error"),
+        create_error_line("14:25:35.598", "00:00:00.0550875", 1, "44E9FC04", "85.11C", "CRC_b21", "Error"),
+        create_error_line("14:25:35.599", "00:00:00.0562659", 3465, "44EBFC04", "86.11C", "", "Error")
     ]
     events.append(create_error_event("2025-04-08 14:25:35.543", error_lines))
 
@@ -109,7 +108,7 @@ def example():
 
 #----------------------------------------------------------------------------------------------------------------------
 #----------------------------------------------------------------------------------------------------------------------
-# Only runs example when script is executed directly
+# MAIN
 if __name__ == "__main__":
     example()
 
