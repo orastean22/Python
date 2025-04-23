@@ -9,10 +9,10 @@ import logging
 import time
 import pymeasure
 
-from pymeasure.instruments.siglent import SPD3303X
-from pymeasure.instruments.siglent import SDM3055
-from pymeasure.instruments.siglent import SDL1020X
-from pymeasure.instruments.siglent import SDG2042X
+#from pymeasure.instruments.siglent import SPD3303X
+#from pymeasure.instruments.siglent import SDM3055
+#from pymeasure.instruments.siglent import SDL1020X
+#from pymeasure.instruments.siglent import SDG2042X
 # from pymeasure.instruments.rigol import MSO5104
 from pymeasure.instruments.rohdeschwarz import HMP4040
 from pymeasure.instruments.tektronix import AFG3152C
@@ -20,7 +20,7 @@ from pymeasure.instruments.tektronix import AFG3152C
 from pymeasure.experiment import Procedure, Results, Worker
 from pymeasure.experiment import IntegerParameter, FloatParameter, Parameter
 from pymeasure.log import log, console_log
-from pymeasure.instruments.rigol import M300
+#from pymeasure.instruments.rigol import M300
 
 
 class CustomFormatter(logging.Formatter):
@@ -94,7 +94,7 @@ class activity:
 
 if __name__ == '__main__':
     log.info('Started')
-    m300 = M300('USB0::0x1AB1::0x0C80::MM3A252700282::INSTR')
+    '''m300 = M300('USB0::0x1AB1::0x0C80::MM3A252700282::INSTR')
     m300.reset()
     time.sleep(1)
     m300.abort()
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     m300.config_temp('TC', 'K', '1','(@401,402)')
     m300.rout_scan('(@401:402)')
     m300.trigger_source('BUS')
-
+    '''
     bs = bitstream.Bitstreamreader()
     doit_seconds = 1
     timeout_seconds = 5
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     t=gettemp()
     while True:
         if datetime.datetime.now() - timestamp3 > datetime.timedelta(seconds=temp_meas_seconds):
-            temp_ldi, temp_igd = t.gettemp()
+            #temp_ldi, temp_igd = t.gettemp()
             timestamp3 = datetime.datetime.now()
 
         if (telegram := bs.read_buffer('CH1')) and enable_ch1 is True:
