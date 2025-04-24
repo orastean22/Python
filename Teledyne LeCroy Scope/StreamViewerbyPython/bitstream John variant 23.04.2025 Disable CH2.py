@@ -72,8 +72,8 @@ class Bitstreamreader:
             #                        '066CFF495087534867072015': 'CHW1',
             #                        '066EFF535488524867225429': 'CHW2'
             # }
-            self._known_devices = {'066CFF495087534867072015': 'CH1',
-                                   '066EFF535488524867225429': 'CH2'
+            self._known_devices = {'0664FF495772784967033021': 'CH1',
+                                   '0669FF485652867187142228': 'CH2'
             }
         ports = serial.tools.list_ports.comports()
 
