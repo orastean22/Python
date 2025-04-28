@@ -5,25 +5,8 @@ import serial
 import serial.tools.list_ports as list_ports
 import datetime
 import uuid
-# from PyQt6.QtHelp import removeCustomValue
-import json
-import os
 
-def load_serial_number(device_name="Device 1"):
-    # Find the current folder where script is running
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    json_path = os.path.join(current_dir, "stlink_serials.json")
-    
-    # Load the JSON file
-    with open(json_path, 'r') as f:
-        data = json.load(f)
-    
-    try:
-        serial_number = data["devices"][device_name]["serial_number"]
-        return serial_number
-    except KeyError:
-        print(f"Device '{device_name}' not found in {json_path}.")
-        return None
+# from PyQt6.QtHelp import removeCustomValue
 
 
 class CustomFormatter(logging.Formatter):
@@ -89,26 +72,9 @@ class Bitstreamreader:
             #                        '066CFF495087534867072015': 'CHW1',
             #                        '066EFF535488524867225429': 'CHW2'
             # }
-            # ****************************************************************************************************
-            # Read from JSON file device name and HW serial no
-            device1_serial = load_serial_number("Device 1")
-            device2_serial = load_serial_number("Device 2")
-            
-            #print(f"Device 1 SN: {device1_serial}")
-            #print(f"Device 2 SN: {device2_serial}")
-
-            if device1_serial and device2_serial:
-                self._known_devices = {
-                    device1_serial: 'CH1',
-                    device2_serial: 'CH2'
-                }
-            else:
-                raise ValueError("Could not load serial number for Devices attached - check the JSON stlink_serials.json file")
-
-            # ****************************************************************************************************
-            #self._known_devices = {'066BFF535488524867144156': 'CH1',
-            #                       '066FFF535488524867153517': 'CH2'
-            #}
+            self._known_devices = {'066BFF535488524867144156': 'CH1',
+                                   '066FFF535488524867153517': 'CH2'
+            }
         ports = serial.tools.list_ports.comports()
 
         self._nukleo_channels = self.enum_channels(self._known_devices)
@@ -648,4 +614,3 @@ class Bitstreamreader:
                 return self
             else:
                 return None
-
