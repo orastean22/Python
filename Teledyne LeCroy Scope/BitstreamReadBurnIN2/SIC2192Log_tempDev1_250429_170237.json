@@ -1,0 +1,207 @@
+[
+  {
+    "ErrTimeTick": "2025-04-29 17:02:37.786",
+    "ErrorLines": [
+      {
+        "TimeChange": "17:02:37.786",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2025-04-29 17:02:50.415",
+    "ErrorLines": [
+      {
+        "TimeChange": "17:02:50.415",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:02:50.415",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "DeadTimeInsertion_b27",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:02:50.415",
+        "TimeSpan to Error": "00:00:00.0010000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "Interlock_b28",
+        "SO": "Ok"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2025-04-29 17:03:22.393",
+    "ErrorLines": [
+      {
+        "TimeChange": "17:03:22.393",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.393",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "UnderVoltage_viso_b14",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.393",
+        "TimeSpan to Error": "00:00:00.0010000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverVoltage_viso_b15",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.393",
+        "TimeSpan to Error": "00:00:00.0020000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "SecondarySideOutOfService_b19",
+        "SO": "Ok"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2025-04-29 17:03:22.394",
+    "ErrorLines": [
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "UnderVoltage_viso_b14",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0010000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverVoltage_viso_b15",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0020000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "GateMonitoring_b16",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0030000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverTemp1_GD_b18",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0040000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverTemp2_GD_b17",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0050000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "SecondarySideOutOfService_b19",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0060000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "GateMonitoring_DESAT_b20",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0070000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "CRC_b21",
+        "SO": "Ok"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2025-04-29 17:03:22.394",
+    "ErrorLines": [
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "UnderVoltage_viso_b14",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "17:03:22.394",
+        "TimeSpan to Error": "00:00:00.0010000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "SecondarySideOutOfService_b19",
+        "SO": "Ok"
+      }
+    ]
+  }
+]

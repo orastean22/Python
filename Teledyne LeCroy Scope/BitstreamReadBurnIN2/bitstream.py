@@ -6,10 +6,8 @@ import serial.tools.list_ports as list_ports
 import datetime
 import uuid
 # from PyQt6.QtHelp import removeCustomValue
-import json
-import os
 
-def load_serial_number(device_name="Device 1"):
+'''def load_serial_number(device_name="Device 1"):
     # Find the current folder where script is running
     current_dir = os.path.dirname(os.path.abspath(__file__))
     json_path = os.path.join(current_dir, "stlink_serials.json")
@@ -24,8 +22,7 @@ def load_serial_number(device_name="Device 1"):
     except KeyError:
         print(f"Device '{device_name}' not found in {json_path}.")
         return None
-
-
+'''
 class CustomFormatter(logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
 
@@ -69,11 +66,10 @@ class Bitstreamreader:
     _instances = 0
     _names = list()
 
-    def __init__(self, known_devices=None, name: str = uuid.uuid1()):
+    def __init__(self, known_devices=None, name: str = uuid.uuid1(), device_info=None):
         """
         :param known_devices:
         :param name: str
-
         """
         Bitstreamreader._instances += 1
         self.name = name
@@ -82,6 +78,7 @@ class Bitstreamreader:
         self.classname = type(self).__qualname__
         self.uart_timeout = 5
         if known_devices:
+            pass
             self._known_devices = known_devices
         else:
             # self._known_devices = {'0673FF535488524867144359': 'CHH1',
@@ -91,16 +88,16 @@ class Bitstreamreader:
             # }
             # ****************************************************************************************************
             # Read from JSON file device name and HW serial no
-            device1_serial = load_serial_number("Device 1")
-            device2_serial = load_serial_number("Device 2")
+            device_serial = device_info
+            #device2_serial = load_serial_number("Device 2")
             
-            #print(f"Device 1 SN: {device1_serial}")
+            #print(f"Device 1 SN: {device_serial}")
             #print(f"Device 2 SN: {device2_serial}")
 
-            if device1_serial and device2_serial:
+            if device_serial:
                 self._known_devices = {
-                    device1_serial: 'CH1',
-                    device2_serial: 'CH2'
+                    device_serial: 'CH1'
+                    #device2_serial: 'CH2'
                 }
             else:
                 raise ValueError("Could not load serial number for Devices attached - check the JSON stlink_serials.json file")
