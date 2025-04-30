@@ -5,6 +5,11 @@ import serial
 import serial.tools.list_ports as list_ports
 import datetime
 import uuid
+import easygui
+import sys
+
+
+
 # from PyQt6.QtHelp import removeCustomValue
 
 '''def load_serial_number(device_name="Device 1"):
@@ -23,6 +28,9 @@ import uuid
         print(f"Device '{device_name}' not found in {json_path}.")
         return None
 '''
+
+#device_no = ""
+
 class CustomFormatter(logging.Formatter):
     """Logging colored formatter, adapted from https://stackoverflow.com/a/56944256/3638629"""
 
@@ -66,11 +74,14 @@ class Bitstreamreader:
     _instances = 0
     _names = list()
 
-    def __init__(self, known_devices=None, name: str = uuid.uuid1(), device_info=None):
+    def __init__(self, known_devices=None, name: str = uuid.uuid1(), device_info=None, device_name=None):
         """
         :param known_devices:
         :param name: str
         """
+        global device_no
+        device_no = device_name
+
         Bitstreamreader._instances += 1
         self.name = name
         Bitstreamreader._names.append(self.name)
@@ -114,7 +125,7 @@ class Bitstreamreader:
         self._telegram_read_customflag_count = 0
         self._anyflag_count = 0
         self._customflag_count = 0
-
+    
     def __del__(self):
         Bitstreamreader._instances -= 1
         try:
@@ -586,7 +597,6 @@ class Bitstreamreader:
 
 
 
-
         def fetch(self):
             """
             Reads data from the UART buffer and processes it to identify a specific record frame.
@@ -604,6 +614,9 @@ class Bitstreamreader:
 
             except serial.SerialException:
                 print('Exception raised while reading UART buffer. COM-Port does not exists anymore.')
+                easygui.msgbox("UART communication intrerupted(COM-Port does not exist anymore)!", title=device_no)
+                sys.exit()
+
             # If more than 12 Bytes Data is available, continue with evaluation
             if len(self._streambuffer) > 12:
                 # Search for two Bytes with a distance of 6 Bytes and an increasing number in range 0x80 - 0xff

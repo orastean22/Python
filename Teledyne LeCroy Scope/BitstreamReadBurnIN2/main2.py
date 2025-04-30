@@ -131,7 +131,7 @@ if __name__ == '__main__':
 
     device_info = devices[selected_device]
     
-    bs = bitstream.Bitstreamreader(device_info=device_info["serial_number"])
+    bs = bitstream.Bitstreamreader(device_info=device_info["serial_number"], device_name=device_info["com_port"])
     doit_seconds = 1
     timeout_seconds = 5
     temp_meas_seconds = 1

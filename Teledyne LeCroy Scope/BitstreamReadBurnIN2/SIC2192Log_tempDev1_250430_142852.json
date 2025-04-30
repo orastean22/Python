@@ -1,0 +1,102 @@
+[
+  {
+    "ErrTimeTick": "2025-04-30 14:28:52.013",
+    "ErrorLines": [
+      {
+        "TimeChange": "14:28:52.013",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      }
+    ]
+  },
+  {
+    "ErrTimeTick": "2025-04-30 14:29:01.319",
+    "ErrorLines": [
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "-00:00:00.0000000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": "C",
+        "Comment": "",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "UnderVoltage_viso_b14",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0010000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverVoltage_viso_b15",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0020000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "GateMonitoring_b16",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0030000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverTemp1_GD_b18",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0040000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "OverTemp2_GD_b17",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0050000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "SecondarySideOutOfService_b19",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0060000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "GateMonitoring_DESAT_b20",
+        "SO": "Ok"
+      },
+      {
+        "TimeChange": "14:29:01.319",
+        "TimeSpan to Error": "00:00:00.0070000",
+        "Count": 0,
+        "SicData[hex]": "",
+        "Temperature": 0,
+        "Comment": "CRC_b21",
+        "SO": "Ok"
+      }
+    ]
+  }
+]
