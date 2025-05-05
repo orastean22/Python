@@ -1,0 +1,47 @@
+
+Metoda 1 - powershell
+# Start exe1.exe on core 0 (CPU 1)
+Start-Process "C:\Path\To\exe1.exe" -ArgumentList "" -NoNewWindow -PassThru | ForEach-Object { $_.ProcessorAffinity = 1 }
+
+# Start exe2.exe on core 1 (CPU 2)
+Start-Process "C:\Path\To\exe2.exe" -ArgumentList "" -NoNewWindow -PassThru | ForEach-Object { $_.ProcessorAffinity = 2 }
+
+# Start exe3.exe on core 2 (CPU 3)
+Start-Process "C:\Path\
+
+
+
+
+
+
+Metoda 2
+So to launch eight copies, each pinned to cores 0–7, your batch file (run_all.bat) could look like:
+
+bat
+
+Copy
+
+@echo off
+
+:: assuming main.exe is in the same folder as this .bat
+
+cd /d "%~dp0"
+
+
+start "" /affinity 0x1  "%~dp0main.exe" -1
+
+start "" /affinity 0x2  "%~dp0main.exe" -2
+
+start "" /affinity 0x4  "%~dp0main.exe" -3
+
+start "" /affinity 0x8  "%~dp0main.exe" -4
+
+start "" /affinity 0x10 "%~dp0main.exe" -5
+
+start "" /affinity 0x20 "%~dp0main.exe" -6
+
+start "" /affinity 0x40 "%~dp0main.exe" -7
+
+start "" /affinity 0x80 "%~dp0main.exe" -8
+
+echo Launched 8 instances, each on its own core.
