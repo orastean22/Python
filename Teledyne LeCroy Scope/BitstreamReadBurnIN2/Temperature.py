@@ -13,11 +13,6 @@ def resistance_to_celsius_poly(x):
         -12.959
     )
 
-# Quick test
-if __name__ == "__main__":
-    for r in [5, 10, 20, 30]:
-        print(f"R = {r} kΩ → {resistance_to_celsius_poly(r):.2f} °C")
-
 
 
 
