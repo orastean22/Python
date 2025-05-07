@@ -1,0 +1,3 @@
+Addition result: 15
+Multiplication result: 50
+Division result: 2.0
