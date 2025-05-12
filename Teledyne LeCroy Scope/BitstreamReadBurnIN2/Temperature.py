@@ -2,7 +2,10 @@
 import math
 
 def resistance_to_celsius_poly(x):
-    """Polynomial formula used by StreamViewer."""
+    """Polynomial formula used by StreamViewer.
+    if x is None or x < 5 or x > 300:
+        return None """
+    
     return (
         -7e-16 * x**6 +
         3e-12 * x**5 +
@@ -12,6 +15,7 @@ def resistance_to_celsius_poly(x):
         0.8 * x +
         -12.959
     )
+
 
 
 

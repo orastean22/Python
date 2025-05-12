@@ -7,20 +7,22 @@ import bitstream
 import datetime
 import logging
 import time
-import pymeasure
-import os
 import json
 import argparse
 import sys
+import os
+import pymeasure
+
 
 #from pymeasure.instruments.siglent import SPD3303X
 #from pymeasure.instruments.siglent import SDM3055
 #from pymeasure.instruments.siglent import SDL1020X
 #from pymeasure.instruments.siglent import SDG2042X
-# from pymeasure.instruments.rigol import MSO5104
+#from pymeasure.instruments.rigol import MSO5104
+from Temperature import resistance_to_celsius_poly
 from pymeasure.instruments.rohdeschwarz import HMP4040
 from pymeasure.instruments.tektronix import AFG3152C
-# from pymeasure.instruments.lecroy import Lecroy_Waverunner
+#from pymeasure.instruments.lecroy import Lecroy_Waverunner
 from pymeasure.experiment import Procedure, Results, Worker
 from pymeasure.experiment import IntegerParameter, FloatParameter, Parameter
 from pymeasure.log import log, console_log
@@ -61,7 +63,6 @@ ch1.setLevel(logging.DEBUG)
 ch1.setFormatter(CustomFormatter('%(asctime)s | %(name)10s | %(levelname)8s | %(filename)-10s:%(lineno)-8d '
                                '| %(message)-120s'))
 log.addHandler(ch1)
-
 
 
 class gettemp():
@@ -110,6 +111,7 @@ def parse_args():
 
     device_num = args.device_number[1:]  # strip the '-' to get the number
     return f"Device {device_num}"
+
 
 if __name__ == '__main__':
     log.info('Started')
@@ -180,30 +182,82 @@ if __name__ == '__main__':
     initial_error = generate_error_json()
     buffer.append(initial_error)
     previous_flaglist = None
-    
+
     while True:
         if datetime.datetime.now() - timestamp3 > datetime.timedelta(seconds=temp_meas_seconds):
             # temp_ldi, temp_igd = t.gettemp()
             timestamp3 = datetime.datetime.now()
 
         if (telegram := bs.read_buffer('CH1')) and enable_ch1:
+            # used only for debug to see if we have differences between 4 and 5 bytes info received.  
+            #print(f"--- RAW TELEGRAM READ ---")
+            #print(f"🔹 HEX (4 bytes): {hex(telegram._message & 0xFFFFFFFF)}")
+            #print(f"🔹 HEX (5 bytes): {hex(telegram._message)}")
+            #first_byte = (telegram._message >> 32) & 0xFF
+            #print(f"🔹 First Byte: {hex(first_byte)}")
+            #print(f"-------------------------")
+
             timestamp1b = datetime.datetime.now()
             if telegram.anyflag:
                 if telegram.flaglist != previous_flaglist:
+                    # log.debug(f'Raw NTC resistance: {telegram.s_temp:.2f} kΩ') # use for debug only 
+                    temp_celsius = resistance_to_celsius_poly(telegram.s_temp)
+
                     # New flaglist, log and append
-                    log.warning(f'{a.get()} CH1: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
+                    #log.warning(f'{a.get()} CH1: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
+                    #log.warning(f'{a.get()} CH1: {telegram.flaglist} - {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
+                    log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex(telegram._message)[2:].upper()}')
 
                     output_list = [mapping.get(item, item) for item in telegram.flaglist]
-                    error_data = append_error_json(output_list, count=0, temperature=telegram.s_temp)
+                    
+                    # Check for the specific SO errors
+                    so_error_detected = False
+                    if 'S_FLOOS' in telegram.flaglist or 'S_DESAT' in telegram.flaglist:
+                        log.error(f"🔴 SO Error Detected! Flags: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C")
+                        so_error_detected = True
+                        
+                    # Create JSON error entry with SO update
+                    # error_data = append_error_json(output_list, count=1, temperature=f"{round(temp_celsius, 1)} °C", telegram=telegram) #no SO here 
+                    error_data = append_error_json(
+                        flaglist=output_list,
+                        count=1,
+                        temperature=f"{round(temp_celsius, 1)} °C",
+                        telegram=telegram,
+                        so_error=so_error_detected
+                    )
+
+                    """# Modify the SO field for the two specific errors
+                    for entry in error_data["ErrorLines"]:
+                        if entry["Comment"] in ["SecondarySideOutOfService_b19", "GateMonitoring_DESAT_b20"]:
+                            entry["SO"] = "Error Detected"   """
+                    
+                    # If no SO error is detected, log as a regular error
+                    if not so_error_detected:
+                        error_data = append_error_json(
+                            flaglist=output_list,
+                            count=1,
+                            temperature=f"{round(temp_celsius, 1)} °C",
+                            telegram=telegram
+                        )
+
+                    # Append to buffer for writing
                     buffer.append(error_data)
 
+                    # Update the previous flag list to prevent duplicate logging
                     previous_flaglist = telegram.flaglist.copy()
                     timestamp1 = datetime.datetime.now()
                 else:
-                    print("Unit is in error or previous error!")
+                    print("Unit is in error or received previous error!")
+
 
             elif datetime.datetime.now() - timestamp1 > datetime.timedelta(seconds=doit_seconds):
-                log.info(f'{a.get()} CH1: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
+                # log.debug(f'Raw NTC resistance: {telegram.s_temp:.2f} kΩ')    # use for debug only 
+                temp_celsius = resistance_to_celsius_poly(telegram.s_temp)
+                if temp_celsius is not None:
+                    # log.info(f'{a.get()} CH1: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
+                    log.info(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
+                else: 
+                    log.warning(f'Invalid resistance value in telegram.s_temp: {telegram.s_temp} kΩ')
                 timestamp1 = datetime.datetime.now()
 
         elif enable_ch1:
@@ -235,6 +289,3 @@ if __name__ == '__main__':
                 save_buffer_to_file(buffer, filename)
                 buffer.clear()
                 last_flush_time = time.time()
-
-
-

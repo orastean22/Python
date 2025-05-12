@@ -8,8 +8,6 @@ import uuid
 import easygui
 import sys
 
-
-
 # from PyQt6.QtHelp import removeCustomValue
 
 '''def load_serial_number(device_name="Device 1"):
@@ -626,8 +624,19 @@ class Bitstreamreader:
                         if (self._streambuffer[i] == (self._streambuffer[i + 6] - 1)) or ((self._streambuffer[i] == 0xFF) and (self._streambuffer[i + 6] == 0x80)):
                             # Found what we have searched for, identified a record frame
                             # Slice 6 Bytes of the Byte-Sequence starting with the Byte after the "Rolling-Byte"
-                            rval_data = int((self._streambuffer[i + 1:i + 6]).hex(), 16)
+                            
+                            rval_data = int((self._streambuffer[i + 1:i + 6]).hex(), 16) # original code from Mike.
+                            
+                            #-----------------------------------------------------------------------------------------                            
+                            # Only read 4 bytes if the first byte is zero, otherwise read 5
+                            """if self._streambuffer[i] == 0x00:
+                                rval_data = int((self._streambuffer[i + 1:i + 5]).hex(), 16)  # Only read 4 bytes
+                            else:
+                                rval_data = int((self._streambuffer[i + 1:i + 6]).hex(), 16)  # Read 5 bytes"""
+                            #-----------------------------------------------------------------------------------------                                                    
+
                             self._message = rval_data
+                            # print(f"Hex Value: {hex(self._message)}")
                             local_timestamp = datetime.datetime.now()
                             # ANDIng the value with the mask to sort out unneccessary data
                             # and_mask = 0b01000000 00000001 01111110 01111111 00000000 = 274902974208
@@ -646,8 +655,6 @@ class Bitstreamreader:
                                 self._customflag = True
                                 self._message_timestamp = local_timestamp
 
-
-                            
                             # Update the filtered Temperature
                             self._s_temp_filtered += int((self.s_temp - self._s_temp_filtered) * 0.01)
                             # Truncate the buffer to the next potential record.
