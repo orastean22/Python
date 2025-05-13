@@ -13,7 +13,6 @@ import sys
 import os
 import pymeasure
 
-
 #from pymeasure.instruments.siglent import SPD3303X
 #from pymeasure.instruments.siglent import SDM3055
 #from pymeasure.instruments.siglent import SDL1020X
@@ -178,9 +177,8 @@ if __name__ == '__main__':
     last_flush_time = time.time()
     flush_time_interval = 5  # also flush every 5 seconds if no activity
 
-    # Save initial entry to file (no flags)
-    initial_error = generate_error_json()
-    buffer.append(initial_error)
+    # Add a flag to track initialization
+    initial_entry_added = False
     previous_flaglist = None
 
     while True:
@@ -197,8 +195,23 @@ if __name__ == '__main__':
             #print(f"🔹 First Byte: {hex(first_byte)}")
             #print(f"-------------------------")
 
+            # Generate Initialization JSON Once**
+            if not initial_entry_added:
+                temp_celsius = resistance_to_celsius_poly(telegram.s_temp)
+                payload_only = telegram._message & 0xFFFFFFFF  # Mask to keep only 4 bytes
+                hex_value = f"{hex(payload_only)[2:].upper()}"
+                
+                initial_error = generate_error_json(initial_temp=round(temp_celsius, 2),initial_hex=hex_value)       
+                if initial_error:
+                    buffer.append(initial_error)
+                    log.info("Initialization JSON entry added successfully")
+                    initial_entry_added = True  # Prevent future calls
+                else:
+                    log.warning("Initialization failed. Retrying...")            
+
             timestamp1b = datetime.datetime.now()
             if telegram.anyflag:
+                
                 if telegram.flaglist != previous_flaglist:
                     # log.debug(f'Raw NTC resistance: {telegram.s_temp:.2f} kΩ') # use for debug only 
                     temp_celsius = resistance_to_celsius_poly(telegram.s_temp)
@@ -206,7 +219,14 @@ if __name__ == '__main__':
                     # New flaglist, log and append
                     #log.warning(f'{a.get()} CH1: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
                     #log.warning(f'{a.get()} CH1: {telegram.flaglist} - {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
-                    log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex(telegram._message)[2:].upper()}')
+                    #log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex(telegram._message)[2:].upper()}')
+                    
+                    # Extract the last 4 bytes (ignore the idle bits in the first byte)
+                    payload_only = telegram._message & 0xFFFFFFFF  # Mask to keep only 4 bytes
+                    hex_value = f"{hex(payload_only)[2:].upper()}"
+                    
+
+                    log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex(payload_only)[2:].upper()}')
 
                     output_list = [mapping.get(item, item) for item in telegram.flaglist]
                     
@@ -221,7 +241,7 @@ if __name__ == '__main__':
                     error_data = append_error_json(
                         flaglist=output_list,
                         count=1,
-                        temperature=f"{round(temp_celsius, 1)} °C",
+                        temperature=f"{round(temp_celsius, 1)}",
                         telegram=telegram,
                         so_error=so_error_detected
                     )
@@ -236,7 +256,7 @@ if __name__ == '__main__':
                         error_data = append_error_json(
                             flaglist=output_list,
                             count=1,
-                            temperature=f"{round(temp_celsius, 1)} °C",
+                            temperature=f"{round(temp_celsius, 1)}",
                             telegram=telegram
                         )
 
@@ -248,7 +268,6 @@ if __name__ == '__main__':
                     timestamp1 = datetime.datetime.now()
                 else:
                     print("Unit is in error or received previous error!")
-
 
             elif datetime.datetime.now() - timestamp1 > datetime.timedelta(seconds=doit_seconds):
                 # log.debug(f'Raw NTC resistance: {telegram.s_temp:.2f} kΩ')    # use for debug only 
@@ -264,24 +283,6 @@ if __name__ == '__main__':
             if datetime.datetime.now() - timestamp1b > datetime.timedelta(seconds=timeout_seconds):
                 log.error(f'{a.get()} CH1: No Data - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
                 timestamp1b = datetime.datetime.now()
-
-
-        """if (telegram := bs.read_buffer('CH2')) and enable_ch2:
-            timestamp2b = datetime.datetime.now()
-            if telegram.anyflag:
-                log.warning(f'{a.get()} CH2: {datetime.datetime.now().time()} - {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
-
-                error_data = generate_error_json(telegram.flaglist, count=telegram.s_temp)
-                buffer.append(error_data)
-
-                timestamp2 = datetime.datetime.now()
-            elif datetime.datetime.now() - timestamp2 > datetime.timedelta(seconds=doit_seconds):
-                log.info(f'{a.get()} CH2: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
-                timestamp2 = datetime.datetime.now()
-        elif enable_ch2:
-            if datetime.datetime.now() - timestamp2b > datetime.timedelta(seconds=timeout_seconds):
-                log.error(f'{a.get()} CH2: No Data - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
-                timestamp2b = datetime.datetime.now()"""
 
         # Flush if threshold reached or timeout
         if len(buffer) >= buffer_flush_threshold or (time.time() - last_flush_time) > flush_time_interval:
