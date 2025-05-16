@@ -226,6 +226,7 @@ class Bitstreamreader:
 
 
     class Telegram:
+        # startbit_mask = 0b 01000000 00000000 00000000 00000000 00000000 = 274902941696
         _STARTBIT = 274902941696
         # viso_uv_mask = 0b 00000000 00000001 00000000 00000000 00000000 = 16777216
         _S_UV = 16777216
@@ -255,6 +256,7 @@ class Bitstreamreader:
         _P_DTI = 512
         # p_ilock_mask = 0b 00000000 00000000 00000000 00000001 00000000 = 256
         _P_ILOCK = 256
+        _SO_MASK = 2  # SO Mask for detecting SO event
         _STOPBIT = 1
 
 
@@ -297,7 +299,19 @@ class Bitstreamreader:
             for value in value_list:
                 self._customflag_mask = self._customflag_mask | value
 
-
+        #**************************************************************************************************
+        """
+        @property
+        def anyflag_mask_so(self):
+            return True if self._anyflag_mask & self._SO_MASK else False
+        @anyflag_mask_so.setter
+        def anyflag_mask_so(self, value):
+            if value is True:
+                self._anyflag_mask |= self._SO_MASK
+            else:
+                self._anyflag_mask &= (0xFFFFFFFFFF ^ self._SO_MASK)
+        """
+        #**************************************************************************************************
 
 
         def customflag_mask_bit_test(self, bit):
@@ -531,13 +545,21 @@ class Bitstreamreader:
             else:
                 return False
 
+        #**************************************************************************************************
+        @property
+        def so_event(self):
+        # so_event_mask = 0b 00000000 00000000 00000000 00000000 00000010 = 2
+            # Check if the SO event is active
+            return bool(self._message & self._SO_MASK)
+
+        #**************************************************************************************************
+
         @property
         def f_stopbit(self):
             if self._message & self._STOPBIT:
                 return False
             else:
                 return True
-
 
 
         @property
@@ -572,6 +594,8 @@ class Bitstreamreader:
                     flags.append('P_DTI')
                 if self.p_ilock:
                     flags.append('P_ILOCK')
+                if self.so_event:
+                    flags.append('SO')
             return flags
 
 
@@ -591,6 +615,8 @@ class Bitstreamreader:
             flagdict.update({'P_OC': 1 if self.p_oc else 0})
             flagdict.update({'P_DTI': 1 if self.p_dti else 0})
             flagdict.update({'P_ILOCK': 1 if self.p_ilock else 0})
+            flagdict.update({'SO': 1 if self.so_event else 0 })
+
             return flagdict
 
 

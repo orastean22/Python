@@ -17,8 +17,8 @@ def generate_error_json(initial_temp=None, initial_hex=None):
     # Add the initial entry with real temperature and hex
     error_json["ErrorLines"].append({
         "TimeChange": timestamp.split()[1], 
-        "TimeSpan to Error": "-00:00:00.0000000",
-        "Count": 9999,
+        "TimeSpan to Error": "00:00:00.0000000",
+        "Count": "0",
         "SicData[hex]": hex_str,
         "Temperature": f"{temper_str} " if initial_temp else "N/A",
         "Comment": "",
@@ -26,7 +26,7 @@ def generate_error_json(initial_temp=None, initial_hex=None):
     })
     return error_json
 
-def append_error_json(flaglist, timestamp=None, count=0, temperature=0, telegram=None, so_error=False):    
+def append_error_json(flaglist, timestamp=None, count=0, temperature=0, telegram=None, so_error=False, hex_value=None):    
     if timestamp is None:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
     
@@ -44,6 +44,9 @@ def append_error_json(flaglist, timestamp=None, count=0, temperature=0, telegram
 
         temp_str = f"{temperature} \u00B0C"  # Unicode for °
         
+        # use the hex value if it exists
+        hex_display = hex_value if hex_value else f"{hex(telegram._message & 0xFFFFFFFF)[2:].upper()}".zfill(8)
+
         # Compute the 4-byte payload
         payload_only = telegram._message & 0xFFFFFFFF  # Masking out the first byte
         
@@ -51,10 +54,10 @@ def append_error_json(flaglist, timestamp=None, count=0, temperature=0, telegram
             "TimeChange": timestamp.split()[1], 
             "TimeSpan to Error": "00:00:00" if i == 0 else f"00:00:00.{i:03d}0000",
             "Count": count,
-            "SicData[hex]": f"{hex(payload_only)[2:].upper()}" if telegram else "",
+            "SicData[hex]": hex_display,
             "Temperature": temp_str,
             "Comment": flag,
-            "SO": "Error" if so_error and flag in ["SecondarySideOutOfService_b19", "GateMonitoring_DESAT_b20"] else "Ok"
+            "SO": "Error" if so_error and flag in ["SO_Error"] else "Ok"
         })
     
     return error_json

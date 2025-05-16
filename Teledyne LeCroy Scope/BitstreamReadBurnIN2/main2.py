@@ -162,7 +162,8 @@ if __name__ == '__main__':
         'P_OT2': 'OverTemp2CDC_b24',
         'P_OC': 'PrimarySideOverCurrent_b25',
         'P_DTI': 'DeadTimeInsertion_b27',
-        'P_ILOCK': 'Interlock_b28'
+        'P_ILOCK': 'Interlock_b28',
+        'SO': 'SO_Error'
     }
 
     # New file
@@ -199,9 +200,9 @@ if __name__ == '__main__':
             if not initial_entry_added:
                 temp_celsius = resistance_to_celsius_poly(telegram.s_temp)
                 payload_only = telegram._message & 0xFFFFFFFF  # Mask to keep only 4 bytes
-                hex_value = f"{hex(payload_only)[2:].upper()}"
-                
-                initial_error = generate_error_json(initial_temp=round(temp_celsius, 2),initial_hex=hex_value)       
+                hex_val = f"{hex(payload_only)[2:].upper()}".zfill(8)
+            
+                initial_error = generate_error_json(initial_temp=round(temp_celsius, 2),initial_hex=hex_val)       
                 if initial_error:
                     buffer.append(initial_error)
                     log.info("Initialization JSON entry added successfully")
@@ -209,47 +210,85 @@ if __name__ == '__main__':
                 else:
                     log.warning("Initialization failed. Retrying...")            
 
-            timestamp1b = datetime.datetime.now()
+            timestamp1b = datetime.datetime.now()   
+           
             if telegram.anyflag:
                 
+                # ------------------------- SO EVENT PROCESSING -------------------------
+                so_error_detected = False
+                so_hex_event_value = None
+                if telegram.so_event:
+                    # Original message info -> raw_hex (5 bytes)
+                    raw_hex = telegram._message & 0xFFFFFFFFFF  # Mask to keep only 5 bytes
+           
+                    # Convert to hex and fill with leading zeros if necessary -> Ensure that we have 10 char - 5 bytes in hex representation
+                    hex_value = f"{hex(raw_hex)[2:].upper()}".zfill(10)
+                                
+                    # Take the middle 4 bytes only if the original hex is 10 characters long
+                    if len(hex_value) == 10:
+                        hex_value = hex_value[2:-2]
+
+                    # Ensure it's exactly 8 characters, if not pad with zeros
+                    hex_value = hex_value.zfill(8)
+                
+                    # Calculate temperature
+                    temp_celsius = resistance_to_celsius_poly(telegram.s_temp)   
+
+                    # Log the error event
+                    log.error(f'{a.get()} CH1: SO Event detected! TEMP = {temp_celsius:.1f} °C - HEX = {hex_value}')
+                    so_hex_event_value = hex_value  # Store the formatted SO event HEX value
+                    so_error_detected = True
+
+                # ------------------------- DIFFERENT FLAG EVENT PROCESSING -------------------------
                 if telegram.flaglist != previous_flaglist:
                     # log.debug(f'Raw NTC resistance: {telegram.s_temp:.2f} kΩ') # use for debug only 
                     temp_celsius = resistance_to_celsius_poly(telegram.s_temp)
 
                     # New flaglist, log and append
                     #log.warning(f'{a.get()} CH1: {telegram.flaglist} - {telegram.s_temp} - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
-                    #log.warning(f'{a.get()} CH1: {telegram.flaglist} - {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd}')
                     #log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex(telegram._message)[2:].upper()}')
                     
-                    # Extract the last 4 bytes (ignore the idle bits in the first byte)
-                    payload_only = telegram._message & 0xFFFFFFFF  # Mask to keep only 4 bytes
-                    hex_value = f"{hex(payload_only)[2:].upper()}"
+                    # Original message info -> raw_hex (5 bytes)
+                    payload_only = telegram._message & 0xFFFFFFFF  # Mask to keep only 5 bytes
                     
+                    # Convert to HEX, upper case, and zero-fill to 8 characters if necessary
+                    hex_value = f"{hex(payload_only)[2:].upper()}".zfill(10)
+                    
+                     # Take the middle 4 bytes only if the original hex is 10 characters long
+                    if len(hex_value) == 10:
+                        hex_value = hex_value[2:-2]
 
-                    log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex(payload_only)[2:].upper()}')
+                    # Ensure it's exactly 8 characters, if not pad with zeros
+                    hex_value = hex_value.zfill(8)
 
+                    # Log the event/value on the screen real time
+                    log.warning(f'{a.get()} CH1: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C - TEMP-LDI = {temp_ldi}, TEMP-IGD = {temp_igd} - HEX = {hex_value}')
+                    
+                    # Generate the output list
                     output_list = [mapping.get(item, item) for item in telegram.flaglist]
                     
+                    #*************************************OLD variant to check SO based on B19 and B20 trigger error ******************************
                     # Check for the specific SO errors
-                    so_error_detected = False
-                    if 'S_FLOOS' in telegram.flaglist or 'S_DESAT' in telegram.flaglist:
-                        log.error(f"🔴 SO Error Detected! Flags: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C")
-                        so_error_detected = True
+                    #so_error_detected = False
+                    #if 'S_FLOOS' in telegram.flaglist or 'S_DESAT' in telegram.flaglist:
+                     #   log.error(f"🔴 SO Error Detected! Flags: {telegram.flaglist} - TEMP = {temp_celsius:.1f} °C")
+                      #  so_error_detected = True
+                    #******************************************************************************************************************************
                         
-                    # Create JSON error entry with SO update
-                    # error_data = append_error_json(output_list, count=1, temperature=f"{round(temp_celsius, 1)} °C", telegram=telegram) #no SO here 
+                    # ------------------------- JSON APPEND -------------------------
                     error_data = append_error_json(
                         flaglist=output_list,
                         count=1,
                         temperature=f"{round(temp_celsius, 1)}",
                         telegram=telegram,
-                        so_error=so_error_detected
+                        so_error=so_error_detected,
+                        hex_value=so_hex_event_value if so_error_detected else hex_value
                     )
 
-                    """# Modify the SO field for the two specific errors
+                    """# Modify the SO field for the two specific errors - debug only
                     for entry in error_data["ErrorLines"]:
                         if entry["Comment"] in ["SecondarySideOutOfService_b19", "GateMonitoring_DESAT_b20"]:
-                            entry["SO"] = "Error Detected"   """
+                            entry["SO"] = "Error Detected"  
                     
                     # If no SO error is detected, log as a regular error
                     if not so_error_detected:
@@ -259,6 +298,7 @@ if __name__ == '__main__':
                             temperature=f"{round(temp_celsius, 1)}",
                             telegram=telegram
                         )
+                    """
 
                     # Append to buffer for writing
                     buffer.append(error_data)
