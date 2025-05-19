@@ -102,6 +102,9 @@ def parse_args():
     # Custom parsing to allow `-1` to be used as argument
     parser = argparse.ArgumentParser(description="Select a device by number.")
     parser.add_argument("device_number", type=str, help="Device number like -1 or -2")
+     
+    # Sleep interval for CPU optimization
+    parser.add_argument('-s', '--sleep', type=float, default=0.0001, help='Sleep interval for CPU optimization')
     args, unknown = parser.parse_known_args()
 
     if not args.device_number.startswith("-") or not args.device_number[1:].isdigit():
@@ -109,7 +112,9 @@ def parse_args():
         sys.exit(1)
 
     device_num = args.device_number[1:]  # strip the '-' to get the number
-    return f"Device {device_num}"
+    # Return the device format and the sleep interval
+    return f"Device {device_num}", args.sleep
+    #return f"Device {device_num}"
 
 
 if __name__ == '__main__':
@@ -123,12 +128,18 @@ if __name__ == '__main__':
     m300.rout_scan('(@401:402)')
     m300.trigger_source('BUS')
     '''
-    selected_device = parse_args()
+    # Parse arguments to get selected device and sleep interval
+    selected_device, sleep_interval = parse_args()
+   
+    #selected_device = parse_args()
     devices = load_devices()
 
+     # Validate if the device is in the list of loaded devices
     if selected_device not in devices:
         print(f"{selected_device} not found in stlink_serials.json")
         sys.exit(1)
+    # Display confirmation
+    print(f"Device {selected_device} found. Sleep interval set to {sleep_interval} seconds.")
 
     device_info = devices[selected_device]
     
@@ -186,7 +197,7 @@ if __name__ == '__main__':
         if datetime.datetime.now() - timestamp3 > datetime.timedelta(seconds=temp_meas_seconds):
             # temp_ldi, temp_igd = t.gettemp()
             timestamp3 = datetime.datetime.now()
-
+        time.sleep(sleep_interval)  #0.0001 =>  100uS delay for Pooling to the CPU LOAD
         if (telegram := bs.read_buffer('CH1')) and enable_ch1:
             # used only for debug to see if we have differences between 4 and 5 bytes info received.  
             #print(f"--- RAW TELEGRAM READ ---")

@@ -1,0 +1,12 @@
+{
+    "devices": {
+        "Device 1": {
+            "com_port": "COM4",
+            "serial_number": "066FFF535488524867153517"
+        },
+        "Device 2": {
+            "com_port": "COM5",
+            "serial_number": "066BFF535488524867144156"
+        }
+    }
+}
