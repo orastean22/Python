@@ -4,7 +4,7 @@
 import yt_dlp
 
 # Specify the output directory where the video will be saved
-output_directory = '/Users/adrianorastean/Downloads/VIDEOCLIPS/'
+output_directory = '/Users/adrianorastean/Deskstop/AudoBooks/'
 
 # Prompt the user for the video URL
 url = input("Enter video URL: ")
