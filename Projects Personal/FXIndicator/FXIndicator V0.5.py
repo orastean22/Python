@@ -9,19 +9,19 @@
 #----STRATEGY-----------------------------------------------------------------------------------------------------------------------------------
 # BUY signal:  if BTC price rise > +3% in last 60 minutes
 # SELL signal: if BTC price drop < -4% in last 60 minutes
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
+#-----------------------------------------------------------------------------------------------------------------------------------------------
 from binance.client import Client
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
-import pytz
-import sys
 
-plt.ion()  # Enable interactive mode
+# Enable interactive mode
+plt.ion()  
 
 # --- Binance Setup (no API key needed) ---
 client = Client()
+
+first_reference_price = None
 
 def generate_signal(change):
     if pd.isna(change):
@@ -32,6 +32,12 @@ def generate_signal(change):
         return 'SELL'
     else:
         return 'HOLD'
+
+def get_initial_diff_text(current_price, first_ref_price):
+    diff = ((current_price - first_ref_price) / first_ref_price) * 100
+    color_code = '\033[94m'  # Blue
+    reset_code = '\033[0m'
+    return f"{color_code}{diff:.2f}%{reset_code}"
 
 while True:
     # Get recent 1-minute candles for last 2 hours
@@ -50,8 +56,16 @@ while True:
     df['Binance_Close'] = df['close'].astype(float)
     df = df[['Binance_Close']]
 
+    if first_reference_price is None:
+        first_reference_price = df['Binance_Close'].shift(60).iloc[-1]
+        blue = '\033[94m'
+        reset = '\033[0m'
+        print(f"{blue}Initial Ref Price (1h ago): {first_reference_price:.2f}{reset}")
+
     # --- Apply Strategy: % Change Over Past 60 Minutes ---
     df['Price Change %'] = (df['Binance_Close'] - df['Binance_Close'].shift(60)) / df['Binance_Close'].shift(60) * 100
+    reference_price = df['Binance_Close'].shift(60).iloc[-1]
+    
     df['Signal'] = df['Price Change %'].apply(generate_signal)
     df['Price Change %'] = df['Price Change %'].round(2).astype(str) + '%'
     # df['Binance_Close'] = 1 min resolution
@@ -59,7 +73,10 @@ while True:
     # df['Binance_Close'] - df['Binance_Close'].shift(60) - This computes the price difference between now and 60 minutes ago
 
     if 'header_printed' not in globals():
-        print(f"{'Time':<25} {'Binance_Close':<12} {'Price Change %':<15} {'Signal'}")
+        #print(f"{'Time':<25} {'Binance_Close':<12} {'Price Change %':<15} {'Signal'}")
+        bold = '\033[1m'
+        reset = '\033[0m'
+        print(f"{bold}{'Time':<25} {'Now_Price':<12} {'Ref_1h_Ago':<12} {'Price Change %':<15} {'Signal'}{reset}")
         global header_printed
         header_printed = True
 
@@ -68,8 +85,8 @@ while True:
     change_value = float(row['Price Change %'].replace('%', ''))
     color_code = '\033[92m' if change_value >= 0 else '\033[91m'
     reset_code = '\033[0m'
-    # print(f"{row['time']:<25} {row['Binance_Close']:<12.2f} {color_code}{row['Price Change %']:<15}{reset_code} {row['Signal']}")
-    print(f"{row['time'].strftime('%Y-%m-%d %H:%M'):<25} {row['Binance_Close']:<12.2f} {color_code}{row['Price Change %']:<15}{reset_code} {row['Signal']}")
+    initial_diff_str = get_initial_diff_text(row['Binance_Close'], first_reference_price)
+    print(f"{row['time'].strftime('%Y-%m-%d %H:%M'):<25} {row['Binance_Close']:<12.2f} {reference_price:<12.2f} {color_code}{row['Price Change %']:<15}{reset_code} {row['Signal']}  {initial_diff_str}")
 
     # --- Plotting ---
     plt.close('all')
@@ -83,7 +100,7 @@ while True:
     plt.scatter(df[df['Signal'] == 'SELL'].index, df[df['Signal'] == 'SELL']['Binance_Close'],
                 label='SELL', color='red', marker='v')
 
-    plt.title("Binance BTC Price with Buy/Sell Signals (Last 4 Hours)")
+    plt.title("Binance BTC Price with Buy/Sell Signals (Last 2 Hours)")
     plt.xlabel("Time")
     plt.ylabel("Price (USD)")
     plt.legend()
