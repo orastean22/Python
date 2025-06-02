@@ -2,7 +2,7 @@
 # Date: 25 Mai 2025
 # Description: Python script to create a simple indicator for financial data that fetches data from Yahoo Finance and plots it.
 # offer you signal to buy or sell based on the custom strategy.
-# Version: 0.6  - added GUI instead of Plot
+# Version: 0.6  - added GUI instead of Plot + setup an alarming system to notify you when a signal is generated
 # pip install yfinance pandas matplotlib
 # pip install python-binance
 
@@ -10,6 +10,8 @@
 # BUY signal:  if BTC price rise > +3% in last 60 minutes
 # SELL signal: if BTC price drop < -4% in last 60 minutes
 #-----------------------------------------------------------------------------------------------------------------------------------------------
+import os
+import platform
 from binance.client import Client
 import pandas as pd
 from datetime import datetime
@@ -32,6 +34,17 @@ def generate_signal(change):
         return 'SELL'
     else:
         return 'HOLD'
+
+def play_alarm(signal_type):
+    if platform.system() == "Windows":
+        import winsound
+        frequency = 1000 if signal_type == 'BUY' else 500
+        duration = 700
+        winsound.Beep(frequency, duration)
+    else:
+        # macOS / Linux - basic beep using system call
+        sound_type = 'BUY' if signal_type == 'BUY' else 'SELL'
+        os.system('say "{} signal"'.format(sound_type))
 
 def get_initial_diff_text(current_price, first_ref_price):
     diff = ((current_price - first_ref_price) / first_ref_price) * 100
@@ -119,6 +132,9 @@ def update_data():
         initial_diff_str = get_initial_diff_text(row['Binance_Close'], first_reference_price)
         print(f"{row['time'].strftime('%Y-%m-%d %H:%M'):<25} {row['Binance_Close']:<12.2f} {reference_price:<12.2f} {color_code}{row['Price Change %']:<15}{reset_code} {row['Signal']}  {initial_diff_str}")
 
+        if row['Signal'] in ['BUY', 'SELL']:
+            play_alarm(row['Signal'])
+
         gui_row = (row['time'].strftime('%Y-%m-%d %H:%M'), f"{row['Binance_Close']:.2f}", f"{reference_price:.2f}", row['Price Change %'], row['Signal'], initial_diff_str.strip('\033[94m\033[0m'))
         root.after(0, lambda r=gui_row: tree.insert('', 'end', values=r))
 
@@ -141,3 +157,5 @@ def update_data():
 # Run the updater in a thread and start the GUI
 threading.Thread(target=update_data, daemon=True).start()
 root.mainloop()
+
+# END 01.06.2025. 
