@@ -2,7 +2,7 @@
 # Date: 25 Mai 2025
 # Description: Python script to create a simple indicator for financial data that fetches data from Yahoo Finance and plots it.
 # offer you signal to buy or sell based on the custom strategy.
-# Version: 0.6  - added GUI instead of Plot + setup an alarming system to notify you when a signal is generated
+# Version: 0.7  - add BTCUSDT and ETHUSDT symbols selection, initial reference price, and improved GUI.
 # pip install yfinance pandas matplotlib
 # pip install python-binance
 
@@ -19,11 +19,20 @@ import tkinter as tk
 from tkinter import ttk
 import threading
 import time
+import sys
+from binance.exceptions import BinanceAPIException
+import requests.exceptions
 
 # --- Binance Setup (no API key needed) ---
-client = Client()
+try:
+    client = Client()
+    client.ping()
+except (requests.exceptions.RequestException, BinanceAPIException) as e:
+    print("\n Unable to connect to Binance. Please check your internet connection and try again.")
+    sys.exit(1)
 
 first_reference_price = None
+selected_symbol = 'BTCUSDT'
 
 def generate_signal(change):
     if pd.isna(change):
@@ -52,10 +61,31 @@ def get_initial_diff_text(current_price, first_ref_price):
     reset_code = '\033[0m'
     return f"{color_code}{diff:.2f}%{reset_code}"
 
+def start_monitoring():
+    start_button.config(state=tk.DISABLED)
+    start_button.update()
+    threading.Thread(target=update_data, daemon=True).start()
+
 def create_gui():
-    global root, tree
+    global root, tree, symbol_var
     root = tk.Tk()
-    root.title("BTC Price Signals")
+    root.title("Crypto Price Signals")
+
+    symbol_var = tk.StringVar(value="BTCUSDT")
+
+    symbol_frame = tk.Frame(root)
+    symbol_frame.pack(pady=5)
+
+    tk.Label(symbol_frame, text="Select Symbol:").pack(side=tk.LEFT, padx=5)
+    tk.Radiobutton(symbol_frame, text="BTC", variable=symbol_var, value="BTCUSDT").pack(side=tk.LEFT)
+    tk.Radiobutton(symbol_frame, text="ETH", variable=symbol_var, value="ETHUSDT").pack(side=tk.LEFT)
+
+    control_frame = tk.Frame(root)
+    control_frame.pack(pady=10)
+    global start_button
+    start_button = tk.Button(control_frame, text="Start Monitoring", command=start_monitoring, state=tk.NORMAL)
+    start_button.pack()
+
     import matplotlib
     matplotlib.use("TkAgg")
     from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -72,7 +102,7 @@ def create_gui():
 
     global fig, ax, canvas
     fig, ax = plt.subplots(figsize=(8, 3))
-    ax.set_title("BTC Binance Price with Buy/Sell Signals")
+    ax.set_title("Crypto Price with Buy/Sell Signals")
     ax.set_xlabel("Time")
     ax.set_ylabel("Price (USD)")
     canvas = FigureCanvasTkAgg(fig, master=root)
@@ -83,7 +113,14 @@ create_gui()
 def update_data():
     global first_reference_price
     while True:
-        klines = client.get_klines(symbol="BTCUSDT", interval=Client.KLINE_INTERVAL_1MINUTE, limit=120)
+        symbol = symbol_var.get()
+        try:
+            klines = client.get_klines(symbol=symbol, interval=Client.KLINE_INTERVAL_1MINUTE, limit=120)
+        except Exception as e:
+            print("\n⚠️  Connection error while fetching data from Binance:", e)
+            print("   Please check your internet connection and try again.\n")
+            time.sleep(10)
+            continue
 
         df = pd.DataFrame(klines, columns=[
             "timestamp", "open", "high", "low", "close", "volume",
@@ -129,7 +166,7 @@ def update_data():
         change_value = float(row['Price Change %'].replace('%', ''))
         color_code = '\033[92m' if change_value >= 0 else '\033[91m'
         reset_code = '\033[0m'
-        initial_diff_str = get_initial_diff_text(row['Binance_Close'], first_reference_price)
+        initial_diff_str = get_initial_diff_text(row['Binance_Close'], first_reference_price).rjust(6)
         print(f"{row['time'].strftime('%Y-%m-%d %H:%M'):<25} {row['Binance_Close']:<12.2f} {reference_price:<12.2f} {color_code}{row['Price Change %']:<15}{reset_code} {row['Signal']}  {initial_diff_str}")
 
         if row['Signal'] in ['BUY', 'SELL']:
@@ -139,10 +176,10 @@ def update_data():
         root.after(0, lambda r=gui_row: tree.insert('', 'end', values=r))
 
         ax.clear()
-        ax.set_title("BTC Binance Price with Buy/Sell Signals")
+        ax.set_title("Crypto Price with Buy/Sell Signals")
         ax.set_xlabel("Time")
         ax.set_ylabel("Price (USD)")
-        ax.plot(df.index, df['Binance_Close'], color='orange', label='Binance BTC-USDT')
+        ax.plot(df.index, df['Binance_Close'], color='orange', label=f'{symbol} Price')
 
         buy_signals = df[df['Signal'] == 'BUY']
         sell_signals = df[df['Signal'] == 'SELL']
@@ -152,10 +189,12 @@ def update_data():
         ax.legend()
         canvas.draw()
 
+        if symbol != symbol_var.get():
+            first_reference_price = None
+            continue
+
         time.sleep(300)
 
-# Run the updater in a thread and start the GUI
-threading.Thread(target=update_data, daemon=True).start()
 root.mainloop()
 
-# END 01.06.2025. 
+# END 02.06.2025. 
