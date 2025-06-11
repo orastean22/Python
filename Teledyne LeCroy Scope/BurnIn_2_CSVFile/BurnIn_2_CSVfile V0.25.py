@@ -32,7 +32,7 @@
 # -- Version 0.23 - add in the name of csv for each scope the time stamp to avoid overwriting the same file 2 times in the same day
 # -- Version 0.24 - Introduce the IP in the JSON config file (remove hardcoded IPs) and read back the IPs from the JSON file
 # -- Version 0.25 - Add Bottom and Top naming instead of scope 1 and scope 2 + update GUI for easy recognition Top and Bottom scope
-#                 - Save also picture of the scope in the same folder with the CSV file when the Glitch is detected
+#                 - Save also picture of the scopes when the Glitch is detected
 # ------------------------------------------------------------------------------------------------------------------ 
 # -- pip install pyvisa
 # ------------------------------------------------------------------------------------------------------------------
@@ -71,24 +71,23 @@ threshold_value = 33
 
 # Get the directory of the current script
 if getattr(sys, 'frozen', False):
-    # Running as EXE
     BASE_DIR = os.path.dirname(sys.executable)
 else:
-    # Running as script
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+
+# Use ScopeConfiguration.json instead of config.json
+CONFIG_PATH = os.path.join(BASE_DIR, "ScopeConfiguration.json")
 
 # Read config only once at start
 def load_config(json_file=CONFIG_PATH):
     if not os.path.isfile(json_file):
-        # Popup error message and exit program if JSON file is missing
         messagebox.showerror("Configuration Error", f"Missing configuration file:\n{json_file}")
-        sys.exit(1)  # Exit the program
+        sys.exit(1)
     with open(json_file, 'r') as file:
         config = json.load(file)
     return config
-config = load_config()  # Load configuration from JSON file
 
+config = load_config()  # Load configuration from JSON file
 
 # Function to change LED status (green if the scopes are connected and reading values P1-P8)
 def set_led_status(led, status):
@@ -100,17 +99,22 @@ def set_led_status(led, status):
 
 # Add Screenshot function for the scope when the glitch is detected
 def save_scope_screenshot(scope, scope_name, timestamp, parameter):
-    filename = f"{timestamp}_{scope_name}_{parameter}.png"
-    # Explicitly save to D:\Screenshots on the scope
+    # Replace colons in timestamp to make it a valid filename
+    safe_timestamp = timestamp.replace(":", "-")
+    filename = f"{safe_timestamp}_{scope_name}_{parameter}.png"
     full_path = f"D:\\Screenshots\\{filename}"
-    vbs_cmd = f'VBS "app.Screen.Save \\"{full_path}\\", \\"PNG\\""'
+    
+    # Correct VBS command formatting
+    #vbs_cmd = f'VBS "app.Screen.Save(\\"{full_path}\\", \\"PNG\\")"'
+    vbs_cmd = f'VBS "app.Screen.Save(\\"D:\\Screenshots\\manualtest.png\\", \\"PNG\\")"'
+
     try:
-        scope.write(vbs_cmd)
+        print(f"Sending VBS command: {vbs_cmd}")  # Debugging: Print the command being sent
+        scope.write(vbs_cmd)  # Send the command to the scope
         return filename
     except Exception as e:
         print(f"Error saving screenshot for {scope_name}: {e}")
         return ""
-
 
 # Function to connect to Scope 1 Bottom Channel
 def connect_to_oscilloscope_1():
@@ -322,6 +326,9 @@ def log_data_scope_1():
 
         # Connect to scope 1
         scope_1 = connect_to_oscilloscope_1()
+        if scope_1 is None:
+            messagebox.showerror("Connection Error", "Failed to connect to Bottom Channel (Scope 1).\n\nCheck cable, power, and IP configuration.")
+            return
 
         # Setup scope 1
         setup_scope_trigger(scope_1, "Scope_1_SETUP")
@@ -389,7 +396,10 @@ def log_data_scope_2():
 
         # Connect to Scope 2
         scope_2 = connect_to_oscilloscope_2()
-
+        if scope_2 is None:
+            messagebox.showerror("Connection Error", "Failed to connect to Top Channel (Scope 2).\n\nCheck cable, power, and IP configuration.")
+            return  # Exit the thread safely
+        
         # Setup scope 2
         setup_scope_trigger(scope_2, "Scope_2_SETUP")
 
@@ -602,4 +612,4 @@ if __name__ == "__main__":
     
 # update 27.05.2025
 # END
-    
+
