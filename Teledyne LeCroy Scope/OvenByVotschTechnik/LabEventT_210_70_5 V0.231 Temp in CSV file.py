@@ -3,7 +3,7 @@
 # -- Created on 16/10/2024;  Update on 11/12/2024 - write to csv file time stamp and temperature
 # -- Author: AdrianO
 # -- Version 0.23 - Read real-time temperature for oven based on socket via TCP/IP and save in CSV file
-# -- Version 0.231 - check is the temp value is the same in the last 4 reads and if is the same throw an message popup.
+# -- Version 0.231 - check is the temp value is the same in the last 8 reads and if is the same throw an message popup.
 # -- Script Task: Remote control LabEvent oven for Burin IN 2 (set and read temperature + humidity)
 # -- Oven Brand: Votschtechnik
 # -- Oven Model: LabEvent T/210/70/5
@@ -106,7 +106,7 @@ if __name__ == "__main__":
                         root.withdraw()
                         messagebox.showerror(
                             "Temperature Read Error",
-                            "Error reading temperature from Oven, please restart Simapti application and restart the PC"
+                            "Error reading temperature from Oven, please restart Simpati application and restart the PC"
                         )
                         break  # Stop the loop
 
